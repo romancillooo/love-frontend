@@ -1,0 +1,30 @@
+<div class="login-wrapper">
+  <div class="hearts-background">
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+  </div>
+
+  <div class="login-container">
+    <h1 class="title">💖 Bienvenida, preciosa 💖</h1>
+    <p class="subtitle">Ingresa la clave secreta ✨</p>
+
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <input
+        type="password"
+        placeholder="Contraseña"
+        [(ngModel)]="password"
+        name="password"
+        required
+      />
+      <button type="submit">Entrar 💕</button>
+    </form>
+
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  </div>
+</div>
