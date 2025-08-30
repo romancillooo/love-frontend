@@ -7,7 +7,11 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:love-project": "node dist/love-project/server/server.mjs"
+    "serve:ssr:love-project": "node dist/love-project/server/server.mjs",
+
+    "fix-index": "cp dist/love-project/browser/index.csr.html dist/love-project/browser/index.html",
+    "firebase-deploy": "firebase deploy --only hosting",
+    "deploy": "ng build && npm run fix-index && npm run firebase-deploy"
   },
   "prettier": {
     "printWidth": 100,
@@ -23,10 +27,12 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^20.2.1",
     "@angular/common": "^20.2.0",
     "@angular/compiler": "^20.2.0",
     "@angular/core": "^20.2.0",
     "@angular/forms": "^20.2.0",
+    "@angular/material": "^20.2.1",
     "@angular/platform-browser": "^20.2.0",
     "@angular/platform-server": "^20.2.0",
     "@angular/router": "^20.2.0",

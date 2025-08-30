@@ -1,28 +1,41 @@
 <div class="login-wrapper">
-  <div class="hearts-background">
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-  </div>
-
   <div class="login-container">
-    <h1 class="title">💖 Bienvenida, preciosa 💖</h1>
-    <p class="subtitle">Ingresa la clave secreta ✨</p>
+    <div class="photo-heart">
+      <img src="assets/photos/login-img.png" alt="Nosotros dos" />
+    </div>
+
+    <!-- Título con íconos -->
+    <h1 class="title">
+      <mat-icon class="love-icon">favorite</mat-icon>
+      Bienvenida, preciosa
+      <mat-icon class="love-icon">favorite</mat-icon>
+    </h1>
+
+    <!-- Subtítulo con ícono -->
+    <p class="subtitle">
+      <mat-icon class="key-icon">lock</mat-icon>
+      Ingresa la clave secreta
+    </p>
 
     <form (ngSubmit)="onLogin()" class="login-form">
-      <input
-        type="password"
-        placeholder="Contraseña"
-        [(ngModel)]="password"
-        name="password"
-        required
-      />
-      <button type="submit">Entrar 💕</button>
+      <div class="input-wrapper">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Ingresa la contra aquí amor"
+          [(ngModel)]="password"
+          name="password"
+          required
+        />
+        <button type="button" class="toggle-eye" (click)="togglePassword()">
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </div>
+
+      <!-- Botón con ícono -->
+      <button type="submit">
+        <mat-icon class="btn-icon">login</mat-icon>
+        Entrar
+      </button>
     </form>
 
     <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
