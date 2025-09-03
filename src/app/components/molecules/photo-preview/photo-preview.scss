@@ -1,0 +1,63 @@
+.preview-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.preview-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  animation: zoomIn 0.3s ease-out;
+
+  img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .close-btn {
+    background: var(--salmon-500);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #ff1e3c;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}

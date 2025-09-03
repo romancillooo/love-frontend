@@ -1,0 +1,31 @@
+.photo-card {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+
+  img {
+    width: 160px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* Efecto romántico en hover */
+    &:hover {
+      transform: scale(1.08) rotate(0deg);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      z-index: 10;
+    }
+  }
+
+  /* Efecto "latido" al pasar el mouse */
+  &:hover img {
+    animation: heartbeat 1s infinite;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.08); }
+  60% { transform: scale(0.95); }
+}

@@ -1,0 +1,7 @@
+<div
+  class="photo-card"
+  [style.transform]="'rotate(' + randomRotation + 'deg)'"
+  (click)="onClick()"
+>
+  <img [src]="photo.small" [alt]="photo.description || 'Foto romántica'" />
+</div>

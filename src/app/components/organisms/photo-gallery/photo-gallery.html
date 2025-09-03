@@ -1,0 +1,17 @@
+<div class="gallery-container">
+  <div class="gallery-grid">
+    @for (photo of photos; track photo.id) {
+      <app-photo-card
+        [photo]="photo"
+        (openPreview)="openPreview($event)">
+      </app-photo-card>
+    }
+  </div>
+
+  @if (selectedPhoto) {
+    <app-photo-preview
+      [photo]="selectedPhoto"
+      (close)="closePreview()">
+    </app-photo-preview>
+  }
+</div>

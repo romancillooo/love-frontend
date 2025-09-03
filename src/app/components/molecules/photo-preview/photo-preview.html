@@ -1,0 +1,7 @@
+<div class="preview-backdrop" *ngIf="photo" (click)="onClose()">
+  <div class="preview-modal" (click)="$event.stopPropagation()">
+    <img [src]="photo.large" [alt]="photo.description || 'Foto romántica'" />
+    <p class="description">{{ photo.description || '💖 t amo mucho mi amor hermosa 💖' }}</p>
+    <button class="close-btn" (click)="onClose()">Cerrar ✨</button>
+  </div>
+</div>

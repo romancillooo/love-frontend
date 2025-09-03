@@ -1,0 +1,44 @@
+.letter-wrapper {
+  display: flex;
+  justify-content: center;
+  /* 👇 Quitamos align-items: center */
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: var(--ff-display);
+  overflow-y: auto; /* 👈 habilita scroll si el contenido excede */
+}
+
+.letter-container {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 650px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  text-align: left;
+  animation: fadeIn 1.2s ease-out;
+  position: relative;
+  margin-bottom: 40px; /* 👈 espacio extra abajo para evitar corte */
+}
+
+.title {
+  text-align: center;
+  font-size: 2.2rem;
+  color: var(--salmon-500);
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 8px rgba(255, 105, 135, 0.4);
+}
+
+.letter-text {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-line;
+  border-left: 4px solid var(--salmon-500);
+  padding-left: 14px;
+  background: #fff9fa;
+  border-radius: 8px;
+  padding: 15px;
+  animation: fadeIn 2s ease-out;
+}

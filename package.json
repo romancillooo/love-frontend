@@ -8,10 +8,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:love-project": "node dist/love-project/server/server.mjs",
-
     "fix-index": "cp dist/love-project/browser/index.csr.html dist/love-project/browser/index.html",
     "firebase-deploy": "firebase deploy --only hosting",
-    "deploy": "ng build && npm run fix-index && npm run firebase-deploy"
+    "deploy": "ng build && npm run fix-index && npm run firebase-deploy",
+    "convert:webp": "node convert-to-webp.js"
   },
   "prettier": {
     "printWidth": 100,
@@ -38,7 +38,9 @@
     "@angular/router": "^20.2.0",
     "@angular/ssr": "^20.2.1",
     "express": "^5.1.0",
+    "gsap": "^3.13.0",
     "rxjs": "~7.8.0",
+    "sharp": "^0.34.3",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
