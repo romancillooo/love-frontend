@@ -12,7 +12,7 @@
   background: rgba(248, 147, 164, 0.15);
   padding: 2.5rem 2rem;
   border-radius: 1.25rem;
-  max-width: 300px;
+  max-width: 260px;
   width: 90%;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -44,6 +44,11 @@
   }
 
   button {
+    display: flex; /* 👈 alinear ícono + texto */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* espacio entre ícono y texto */
+
     background: var(--salmon-500);
     color: #fff;
     font-size: 1rem;
@@ -56,10 +61,8 @@
     letter-spacing: 0.5px;
     font-family: var(--ff-display);
 
-    &:hover {
-      transform: scale(1.08);
-      filter: brightness(0.9); // 🔥 oscurece un poco el color
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    mat-icon {
+      font-size: 1.3rem; /* ajusta el tamaño del ícono */
     }
   }
 
@@ -106,6 +109,7 @@
 
   .logout {
     background: transparent;
+    width: 100%;
     border: 2px solid var(--rose-500);
     color: var(--rose-500);
     padding: 0.6rem 1.2rem;

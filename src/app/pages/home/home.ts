@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/auth';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })

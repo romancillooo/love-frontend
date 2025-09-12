@@ -10,15 +10,17 @@ import { CommonModule } from '@angular/common';
 })
 export class LetterPage {
   fullText: string = `
-    Mi amor 💖,
+    Hola preciosa,
 
     No hay palabras suficientes para describir lo mucho que significas para mí.
-    Cada foto que ves aquí, cada recuerdo, es solo un reflejo de lo afortunado que soy de tenerte en mi vida.
+    Cada foto que ves aquí, cada recuerdo, es solo un reflejo de lo feliz que soy de tenerte en mi vida.
 
-    Gracias por tu risa, por tu apoyo, y por ser mi lugar seguro.
-    Eres lo más bonito que me ha pasado, y cada día a tu lado es un regalo que nunca dejaré de agradecer.
+    Gracias por tanto amor, por tanto cariño, por siempre apoyarme, eres lo mejor que tengo preciosa 🥰.
+    k afortunado k soi deveraz 👉👈.
 
-    Te amo con todo mi corazón ❤️
+    Te amo mucho mi amor hermosa, amor de mi vida ❤️
+
+    -tu bebito
   `;
 
   displayText: string = '';

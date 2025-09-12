@@ -1,0 +1,39 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  padding: 1rem;
+  font-family: var(--ff-display);
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+
+  background: rgba(255, 0, 43, 0.2);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  transform: translateY(0);
+
+  &.hidden {
+    transform: translateY(-100%);
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: white;
+    padding: 0.5rem 1rem;
+
+    mat-icon {
+      font-size: 1.5rem;
+    }
+  }
+}

@@ -1,16 +1,18 @@
 .gallery-container {
-  padding: 2rem 0;
+  padding: 5.5rem 0;
   position: relative;
   width: 100%;
   min-height: 100vh;
+  animation: fadeIn 1.2s ease-out; /* 👈 animación de aparición */
 }
 
 /* Collage estilo Pinterest */
 .gallery-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
   justify-content: center;
+  animation: fadeIn 1.5s ease-out; /* 👈 entra un poco después */
 }
 
 /* Preview Modal */
@@ -25,6 +27,7 @@
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  animation: fadeIn 0.4s ease-out; /* 👈 entrada rápida del overlay */
 }
 
 .preview-modal {
@@ -35,12 +38,14 @@
   max-width: 90%;
   max-height: 90%;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  animation: fadeIn 0.6s ease-out; /* 👈 modal con efecto suave */
 
   img {
     max-width: 100%;
     max-height: 70vh;
     border-radius: 12px;
     margin-bottom: 1rem;
+    animation: fadeIn 0.8s ease-out; /* 👈 imagen aparece suavemente */
   }
 
   .description {
@@ -48,6 +53,7 @@
     color: #444;
     margin-bottom: 1rem;
     font-style: italic;
+    animation: fadeIn 1s ease-out;
   }
 
   .close-btn {
@@ -63,5 +69,17 @@
     &:hover {
       background: #ff1e3c;
     }
+  }
+}
+
+/* 🔑 Animación global reutilizable */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

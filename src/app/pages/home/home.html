@@ -1,18 +1,30 @@
 <div class="home-wrapper">
   <div class="home-container">
-    <h1 class="title">💖 Hola mi amor 💖</h1>
-    <p class="subtitle">Bienvenida a nuestro rinconcito especial ✨</p>
+    <h1 class="title">
+      <mat-icon>favorite</mat-icon> Hola mi amor
+      <mat-icon>favorite</mat-icon>
+    </h1>
+
+    <p class="subtitle">
+      Bienvenida a nuestro rinconcito especial
+    </p>
 
     <p class="message">
-      Aquí encontrarás nuestras fotos, recuerdos y momentos juntos 💕
-      Este espacio es solo para ti 🌹
+      Aquí encontrarás nuestras fotos, recuerdos y momentos juntos
+      Este espacio es solo para ti.
     </p>
 
     <div class="actions">
-      <button class="btn primary" (click)="goToPhotos()">📸 Ver nuestras fotos</button>
-      <button class="btn secondary" (click)="goToLetter()">💌 Ver carta</button>
+      <button class="btn primary" (click)="goToPhotos()">
+        <mat-icon>photo_library</mat-icon> Ver nuestras fotos
+      </button>
+      <button class="btn secondary" (click)="goToLetter()">
+        <mat-icon>mail</mat-icon> Ver carta
+      </button>
     </div>
 
-    <button class="logout" (click)="logout()">Cerrar sesión 🚪</button>
+    <button class="logout" (click)="logout()">
+      <mat-icon>logout</mat-icon> Salir
+    </button>
   </div>
 </div>
