@@ -1,9 +1,8 @@
 .preview-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;   /* 👈 asegura ancho total */
-  height: 100vh;  /* 👈 asegura alto total */
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
@@ -11,7 +10,7 @@
   z-index: 2000;
   animation: fadeIn 0.3s ease-out;
 
-  /* Previene scroll de fondo si se cuela */
+  /* Esto ayuda, pero en iOS no basta */
   overflow: hidden;
 }
 

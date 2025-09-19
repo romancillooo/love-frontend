@@ -13,21 +13,31 @@ export class PhotoPreviewComponent implements OnChanges {
   @Input() photo: Photo | null = null;
   @Output() close = new EventEmitter<void>();
 
+  private preventScroll = (e: TouchEvent) => e.preventDefault();
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['photo']) {
       if (this.photo) {
-        // 🚫 Bloquear scroll al abrir
+        // 🚫 Bloquear scroll
         document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+
+        // 👇 Extra para iOS: previene gestos touch
+        document.addEventListener('touchmove', this.preventScroll, { passive: false });
       } else {
-        // ✅ Restaurar scroll al cerrar
-        document.body.style.overflow = '';
+        this.restoreScroll();
       }
     }
   }
 
   onClose() {
     this.close.emit();
-    // Por si acaso se cierre por otra vía
+    this.restoreScroll();
+  }
+
+  private restoreScroll() {
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.removeEventListener('touchmove', this.preventScroll);
   }
 }

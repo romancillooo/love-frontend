@@ -13,9 +13,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginPage },
   { path: 'home', component: HomePage, canActivate: [authGuard] },
   { path: 'photos', component: PhotoGalleryComponent, canActivate: [authGuard] },
-
   { path: 'letters', component: LettersMenu, canActivate: [authGuard] },
   { path: 'letter/:id', component: LetterDetail, canActivate: [authGuard] },
-
   { path: '**', redirectTo: 'login' }
 ];
