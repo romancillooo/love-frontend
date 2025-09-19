@@ -1,0 +1,14 @@
+<div class="letter-menu-wrapper">
+  <h2 class="menu-title">📜 Mis Cartas para Ti</h2>
+
+  <div class="letter-grid">
+    <div
+      class="letter-card"
+      *ngFor="let letter of letters"
+      (click)="openLetter(letter.id)"
+    >
+      <span class="icon">{{ letter.icon }}</span>
+      <h3 class="letter-title">{{ letter.title }}</h3>
+    </div>
+  </div>
+</div>

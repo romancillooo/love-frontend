@@ -2,6 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { Location } from '@angular/common'; // 👈 import Location
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -16,7 +17,7 @@ export class NavbarComponent {
   isVisible = true;       // 👈 controla si está visible por scroll
   private lastScrollTop = 0;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private location: Location) {
     // Escuchar cambios de ruta
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -42,7 +43,7 @@ export class NavbarComponent {
     this.lastScrollTop = st <= 0 ? 0 : st;
   }
 
-  goHome() {
-    this.router.navigate(['/home']);
+  goBack() {
+    this.location.back();
   }
 }

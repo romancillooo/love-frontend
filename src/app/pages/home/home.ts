@@ -23,7 +23,7 @@ export class HomePage {
     this.router.navigate(['/photos']);
   }
 
-  goToLetter() {
-    this.router.navigate(['/letter']);
+  goToLetters() {
+    this.router.navigate(['/letters']); // 🔥 ahora apunta al menú de cartas
   }
 }

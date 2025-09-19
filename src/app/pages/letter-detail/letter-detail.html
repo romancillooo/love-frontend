@@ -1,0 +1,6 @@
+<div class="letter-wrapper" *ngIf="letter">
+  <div class="letter-container">
+    <h1 class="title">{{ letter.title }}</h1>
+    <p class="letter-text" [innerText]="displayText"></p>
+  </div>
+</div>
