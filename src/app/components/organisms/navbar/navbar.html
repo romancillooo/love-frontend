@@ -45,3 +45,10 @@
     </div>
   </div>
 </nav>
+
+<!-- 🔹 Overlay para mobile -->
+<div
+  class="navbar-overlay"
+  *ngIf="menuOpen()"
+  (click)="closeMenu()"
+></div>

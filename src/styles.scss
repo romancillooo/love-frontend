@@ -29,7 +29,7 @@ body {
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: var(--ff-display);
 }
 
 /* ✅ ESTE FIX EVITA QUE ALGÚN CONTENEDOR CON width: 100vw SEPARE TODO EL LAYOUT */

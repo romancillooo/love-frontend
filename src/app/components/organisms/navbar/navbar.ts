@@ -1,8 +1,8 @@
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, HostListener, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { Location } from '@angular/common'; // 👈 import Location
+import { Location } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth';
 
@@ -14,8 +14,8 @@ import { AuthService } from '../../../core/auth';
   styleUrls: ['./navbar.scss']
 })
 export class NavbarComponent {
-  isRouteAllowed = true;  // 👈 controla si se debe renderizar
-  isVisible = true;       // 👈 controla si está visible por scroll
+  isRouteAllowed = true;
+  isVisible = true;
   showBackButton = false;
   activeNavRoute = '/home';
   currentTitle = 'Nuestros momentos';
@@ -34,35 +34,52 @@ export class NavbarComponent {
     private readonly location: Location,
     private readonly auth: AuthService
   ) {
-    // Escuchar cambios de ruta
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(event => {
         this.handleRouteChange(event.urlAfterRedirects);
       });
+
+    // 👇 Efecto para agregar o quitar clase del body automáticamente
+    effect(() => {
+      if (this.menuOpen()) {
+        document.body.classList.add('menu-open');
+      } else {
+        document.body.classList.remove('menu-open');
+      }
+    });
   }
 
   @HostListener('window:scroll', [])
-  onWindowScroll() {
-    const st = window.pageYOffset || document.documentElement.scrollTop;
+    onWindowScroll() {
+      const st = window.pageYOffset || document.documentElement.scrollTop;
 
-    if (st > this.lastScrollTop) {
-      // 👇 scroll hacia abajo → ocultar
-      this.isVisible = false;
-    } else {
-      // 👆 scroll hacia arriba → mostrar
-      this.isVisible = true;
+      // 🔹 Umbral mínimo para evitar micro-movimientos
+      const delta = Math.abs(st - this.lastScrollTop);
+      if (delta < 5) return;
+
+      // 🔹 Solo ocultar si bajaste al menos 100px
+      if (st > this.lastScrollTop && st > 100) {
+        // scroll hacia abajo
+        if (this.isVisible) {
+          this.isVisible = false;
+        }
+      } else if (st < this.lastScrollTop) {
+        // scroll hacia arriba
+        if (!this.isVisible) {
+          this.isVisible = true;
+        }
+      }
+
+      this.lastScrollTop = st <= 0 ? 0 : st;
     }
-
-    this.lastScrollTop = st <= 0 ? 0 : st;
-  }
 
   goBack() {
     this.location.back();
   }
 
   toggleMenu() {
-    this.menuOpen.update(value => !value);
+    this.menuOpen.update(v => !v);
   }
 
   closeMenu() {
@@ -84,17 +101,12 @@ export class NavbarComponent {
   }
 
   private resolveActiveRoute(url: string): string {
-    if (url.startsWith('/letter')) {
-      return '/letters';
-    }
+    if (url.startsWith('/letter')) return '/letters';
     return this.navigationLinks.some(link => link.route === url) ? url : '/home';
   }
 
   private resolveTitle(url: string): string {
-    if (url.startsWith('/letter')) {
-      return 'Carta especial';
-    }
-
+    if (url.startsWith('/letter')) return 'Carta especial';
     const match = this.navigationLinks.find(link => link.route === url);
     return match ? match.label : 'Nuestros momentos';
   }

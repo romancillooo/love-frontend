@@ -6,19 +6,22 @@
   z-index: 1000;
   padding: 1rem;
   font-family: var(--ff-display);
-  transition: transform 0.25s ease, background 0.25s ease;
+  transition: transform 0.35s ease-in-out, background 0.25s ease;
   background: rgba(255, 81, 115, 0.22);
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(0);
+  will-change: transform; /* 👈 fuerza a renderizar transformaciones de forma fluida */
+  pointer-events: auto;
 
   &.hidden {
-    transform: translateY(-100%);
+    transform: translateY(-110%);
+    pointer-events: none; /* evita clics mientras está oculto */
   }
 
   @media (max-width: 680px) {
-      padding: 0.65rem 1rem;
+    padding: 0.65rem 1rem;
   }
 }
 
@@ -182,4 +185,35 @@
   .menu-toggle {
     display: none;
   }
+}
+
+/* 🔹 Overlay que se muestra solo en mobile */
+.navbar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900; /* debajo del navbar (que está en 1000) */
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease forwards;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 900px) {
+    display: none;
+  }
+}
+
+/* 🔹 Desactivar scroll horizontal y fijo en body cuando menú abierto */
+body.menu-open {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
