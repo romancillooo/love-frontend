@@ -1,7 +1,35 @@
+<!-- src/app/components/molecules/photo-preview/photo-preview.html -->
 <div class="preview-backdrop" *ngIf="photo" (click)="onClose()">
-  <div class="preview-modal" (click)="$event.stopPropagation()">
-    <img [src]="photo.large" [alt]="photo.description || 'Foto romántica'" />
-    <p class="description">{{ photo.description || '💖 t amo mucho mi amor hermosa 💖' }}</p>
-    <button class="close-btn" (click)="onClose()">Cerrar ✨</button>
-  </div>
+  <article class="preview-modal" (click)="$event.stopPropagation()" role="dialog">
+    <header class="preview-toolbar">
+      <div class="preview-meta" *ngIf="photo">
+        <time class="preview-date">{{ photo.createdAt | date: 'd MMMM, y' }}</time>
+        <span class="preview-count">{{ index + 1 }} / {{ total }}</span>
+      </div>
+    </header>
+
+    <div class="preview-content">
+      <figure class="preview-frame">
+        <button type="button" class="nav-btn prev" (click)="onPrevious()" [disabled]="!hasPrevious">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <img [src]="photo.large" [alt]="photo.description || 'Foto romántica'" />
+
+        <button type="button" class="nav-btn next" (click)="onNext()" [disabled]="!hasNext">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+
+        <figcaption>
+          <p class="preview-description">
+            {{ photo.description || '💖 Te amo mucho mi amor hermosa 💖' }}
+          </p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <footer class="preview-footer">
+      <button type="button" class="close-cta" (click)="onClose()">Cerrar y seguir amándonos ✨</button>
+    </footer>
+  </article>
 </div>

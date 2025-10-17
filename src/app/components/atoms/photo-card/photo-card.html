@@ -1,7 +1,22 @@
-<div
+<article
   class="photo-card"
-  [style.transform]="'rotate(' + randomRotation + 'deg)'"
+  tabindex="0"
+  role="button"
   (click)="onClick()"
+  (keyup.enter)="onClick()"
+  [style.transform]="'rotate(' + randomRotation + 'deg)'"
+  [attr.aria-label]="photo.description || 'Abrir foto'"
 >
-  <img [src]="photo.small" [alt]="photo.description || 'Foto romántica'" />
-</div>
+  <figure class="photo-frame">
+    <img
+      [src]="photo.small"
+      [alt]="photo.description || 'Foto romántica'"
+      loading="lazy"
+      (load)="onImageLoad()"
+    />
+    <figcaption>
+      <span class="photo-date">{{ photo.createdAt | date: 'd MMM y' }}</span>
+      <span class="photo-desc" *ngIf="photo.description">{{ photo.description }}</span>
+    </figcaption>
+  </figure>
+</article>

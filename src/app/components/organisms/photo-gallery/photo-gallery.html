@@ -1,17 +1,63 @@
-<div class="gallery-container">
-  <div class="gallery-grid">
-    @for (photo of photos; track photo.id) {
-      <app-photo-card
-        [photo]="photo"
-        (openPreview)="openPreview($event)">
-      </app-photo-card>
-    }
-  </div>
+<section class="gallery-container">
+  <header class="gallery-header">
+    <div class="gallery-heading">
+      <h1 class="gallery-title">Nuestros recuerdos</h1>
+      <p class="gallery-subtitle">
+        Elige un momento para revivirlo. Las fotos más recientes aparecen primero.
+      </p>
+    </div>
+
+    <div class="gallery-filters" aria-label="Filtrar por año">
+      @for (year of filterYears; track year) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.is-active]="activeYear === year"
+          (click)="filterByYear(year)"
+        >
+          {{ year === 'all' ? 'Todos' : year }}
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (isSkeletonVisible) {
+    <div class="gallery-skeleton" aria-hidden="true">
+      @for (placeholder of skeletonPlaceholders; track placeholder) {
+        <div class="skeleton-card"></div>
+      }
+      <p class="skeleton-message">Cargando recuerdos…</p>
+    </div>
+  }
+
+  @if (photos.length === 0) {
+    <div class="gallery-empty">
+      <p>No encontramos recuerdos para ese filtro. Prueba con otro año 💖</p>
+    </div>
+  } @else {
+    <div class="gallery-grid" [class.is-loading]="isSkeletonVisible">
+      @for (photo of photos; track photo.id) {
+        <div class="gallery-item" [class.is-loaded]="hasPhotoLoaded(photo.id)">
+          <app-photo-card
+            [photo]="photo"
+            (openPreview)="openPreview($event)"
+            (imageLoaded)="onPhotoLoaded($event)"
+          ></app-photo-card>
+        </div>
+      }
+    </div>
+  }
 
   @if (selectedPhoto) {
     <app-photo-preview
       [photo]="selectedPhoto"
-      (close)="closePreview()">
-    </app-photo-preview>
+      [hasNext]="hasNextPhoto"
+      [hasPrevious]="hasPreviousPhoto"
+      [index]="selectedIndex"
+      [total]="photos.length"
+      (close)="closePreview()"
+      (next)="showNextPhoto()"
+      (previous)="showPreviousPhoto()"
+    ></app-photo-preview>
   }
-</div>
+</section>

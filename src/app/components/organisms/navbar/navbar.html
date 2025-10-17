@@ -1,5 +1,47 @@
-<nav class="navbar" *ngIf="isRouteAllowed" [ngClass]="{ 'hidden': !isVisible }">
-  <button class="back-btn" (click)="goBack()">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
+<nav class="navbar" *ngIf="isRouteAllowed" [class.hidden]="!isVisible">
+  <div class="navbar-content">
+    <div class="primary-row">
+      <div class="left-slot">
+        <button
+          *ngIf="showBackButton"
+          class="back-btn icon-btn"
+          type="button"
+          (click)="goBack()"
+          aria-label="Volver"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <button
+          class="menu-toggle icon-btn"
+          type="button"
+          (click)="toggleMenu()"
+          aria-label="Abrir menú"
+        >
+          <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+        </button>
+      </div>
+
+      <button class="icon-btn ghost" disabled></button>
+    </div>
+
+    <div class="nav-links" [class.is-open]="menuOpen()">
+      <a
+        *ngFor="let link of navigationLinks"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="link.route"
+        class="nav-link"
+        [class.is-current]="activeNavRoute === link.route"
+        (click)="closeMenu()"
+      >
+        <mat-icon>{{ link.icon }}</mat-icon>
+        <span>{{ link.label }}</span>
+      </a>
+      <button type="button" class="nav-link logout-link" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Salir</span>
+      </button>
+    </div>
+  </div>
 </nav>

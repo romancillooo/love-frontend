@@ -1,14 +1,28 @@
-<div class="letter-menu-wrapper">
-  <h2 class="menu-title">📜 Mis Cartas para Ti</h2>
+<section class="letter-menu-wrapper">
+  <header class="menu-header">
+    <h2 class="menu-title">📜 Mis cartas para ti</h2>
+    <p class="menu-subtitle">
+      Cada palabra está pensada para ti. Elige una carta y déjate sorprender de nuevo.
+    </p>
+  </header>
 
   <div class="letter-grid">
-    <div
-      class="letter-card"
-      *ngFor="let letter of letters"
-      (click)="openLetter(letter.id)"
-    >
-      <span class="icon">{{ letter.icon }}</span>
-      <h3 class="letter-title">{{ letter.title }}</h3>
-    </div>
+    @for (letter of letters; track letter.id) {
+      <article
+        class="letter-card"
+        (click)="openLetter(letter.id)"
+        tabindex="0"
+        (keyup.enter)="openLetter(letter.id)"
+        role="button"
+        [attr.aria-label]="'Leer ' + letter.title"
+      >
+        <div class="letter-icon">
+          <span class="icon">{{ letter.icon }}</span>
+        </div>
+        <h3 class="letter-title">{{ letter.title }}</h3>
+        <p class="letter-preview">{{ letter.preview }}</p>
+        <span class="letter-cta">Abrir carta</span>
+      </article>
+    }
   </div>
-</div>
+</section>

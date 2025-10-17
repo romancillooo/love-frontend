@@ -1,70 +1,218 @@
+/* src/app/components/molecules/photo-preview/photo-preview.scss */
 .preview-backdrop {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.78);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  animation: fadeIn 0.3s ease-out;
-
-  /* Esto ayuda, pero en iOS no basta */
-  overflow: hidden;
+  padding: 1.25rem;
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.24s ease-out;
 }
 
+/* ---------- MODAL ---------- */
 .preview-modal {
-  background: rgba(255, 151, 169, 0.2); /* 👈 fondo translúcido */
-  backdrop-filter: blur(16px) saturate(180%); /* 👈 efecto vidrio */
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 1rem;
-  text-align: center;
-  max-width: 310px;
-  max-height: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  animation: zoomIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: clamp(320px, 90vw, 520px);
+  height: clamp(420px, 80vh, 640px);
+  background: rgba(255, 151, 169, 0.18);
+  backdrop-filter: blur(18px) saturate(185%);
+  -webkit-backdrop-filter: blur(18px) saturate(185%);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 1.25rem;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  animation: zoom-in 0.28s ease-out;
+  overflow: hidden; // 🔥 evita que img empuje los bordes
+}
 
-  img {
-    max-width: 100%;
-    max-height: 70vh;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25); /* resalta la foto */
-  }
+/* ---------- TOOLBAR ---------- */
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 
-  .description {
-    font-size: 1rem;
-    color: #fff; /* 👈 texto en blanco para contraste */
-    margin-bottom: 1rem;
-    font-style: italic;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  }
+  .preview-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    font-family: var(--ff-display);
+    color: #ffe6ea;
 
-  .close-btn {
-    background: var(--salmon-500);
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s ease;
+    .preview-date {
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+    }
 
-    &:hover {
-      background: #ff1e3c;
+    .preview-count {
+      font-size: 0.8rem;
+      opacity: 0.75;
     }
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* ---------- ICON BUTTON ---------- */
+/* ---------- CONTENT WRAPPER (fix overflow) ---------- */
+.preview-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0; // 🔥 importante para evitar stretch en flex
+  padding: 0 2rem;
 }
 
-@keyframes zoomIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+/* ---------- IMAGE FRAME ---------- */
+.preview-frame {
+  margin: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    max-width: 90%;
+    max-height: 85%; // 🔥 margen estético
+    object-fit: contain; // 🔥 mantiene proporción, no se sale
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    display: block;
+  }
+
+  figcaption {
+    width: 100%;
+    max-width: 90%;
+    padding-top: 0.5rem;
+  }
+
+  .preview-description {
+    font-size: 1rem;
+    color: #fff;
+    font-style: italic;
+    text-align: center;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+    margin: 0;
+  }
+}
+
+/* ---------- NAV BUTTONS ---------- */
+.nav-btn {
+  border: none;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-50%) scale(1.05);
+    background: rgba(255, 105, 135, 0.8);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &.prev {
+    left: 0.3rem;
+  }
+
+  &.next {
+    right: 0.3rem;
+  }
+}
+
+/* ---------- FOOTER ---------- */
+.preview-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.close-cta {
+  border: none;
+  background: linear-gradient(135deg, var(--salmon-500), var(--rose-400));
+  color: #fff;
+  font-family: var(--ff-display);
+  font-weight: 600;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(255, 105, 135, 0.35);
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 540px) {
+  .preview-modal {
+    width: calc(100vw - 3rem);
+    max-height: 85vh; // 🔥 Evita que se vea "full"
+    height: auto; // 🔥 Para que se ajuste solo al contenido
+    padding: 1rem;
+    border-radius: 20px;
+  }
+
+  .preview-content {
+    padding: 0.5rem 1rem;
+  }
+
+  .nav-btn {
+    width: 42px;
+    height: 42px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-50%) scale(1.05);
+    }
+  }
+
+  .nav-btn.prev,
+  .nav-btn.next {
+    position: absolute;
+    margin: 0;
+  }
+
+  .nav-btn.prev {
+    left: 0.2rem;
+  }
+
+  .nav-btn.next {
+    right: 0.2rem;
+  }
+
+  .preview-frame img {
+    max-height: 70vh; // Ajuste dinámico
+  }
 }

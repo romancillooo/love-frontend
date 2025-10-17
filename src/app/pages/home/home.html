@@ -1,30 +1,56 @@
-<div class="home-wrapper">
-  <div class="home-container">
-    <h1 class="title">
-      <mat-icon>favorite</mat-icon> Hola mi amor
-      <mat-icon>favorite</mat-icon>
-    </h1>
+<section class="home-wrapper">
+  <div class="home-shell">
+    <div class="home-hero">
+      <p class="eyebrow">hola mi amor</p>
+      <h1 class="title">
+        Bienvenida a nuestro rinconcito especial
+      </h1>
+      <p class="message">
+        Aquí guardo nuestros recuerdos favoritos para que podamos volver a sentirlos cuando
+        quieras. Tómate tu tiempo, todo está hecho con mucho amor para ti.
+      </p>
 
-    <p class="subtitle">
-      Bienvenida a nuestro rinconcito especial
-    </p>
+      <div class="actions">
+        <button class="btn primary" (click)="goToPhotos()">
+          <mat-icon>photo_library</mat-icon>
+          Ver nuestras fotos
+        </button>
+        <button class="btn secondary" (click)="goToLetters()">
+          <mat-icon>mail</mat-icon>
+          Leer cartas
+        </button>
+      </div>
 
-    <p class="message">
-      Aquí encontrarás nuestras fotos, recuerdos y momentos juntos.
-      Este espacio es solo para ti.
-    </p>
-
-    <div class="actions">
-      <button class="btn primary" (click)="goToPhotos()">
-        <mat-icon>photo_library</mat-icon> Ver nuestras fotos
-      </button>
-      <button class="btn secondary" (click)="goToLetters()">
-        <mat-icon>mail</mat-icon> Ver cartas
-      </button>
     </div>
 
-    <button class="logout" (click)="logout()">
-      <mat-icon>logout</mat-icon> Salir
-    </button>
+    <aside class="home-preview">
+      <div class="preview-card" (click)="goToPhotos()" role="button" tabindex="0" (keyup.enter)="goToPhotos()" aria-label="Ver todas las fotos">
+        <h2>Últimos recuerdos</h2>
+        <div class="preview-photos" *ngIf="featuredPhotos.length > 0; else emptyPhotos">
+          <img
+            *ngFor="let photo of featuredPhotos; index as i"
+            [src]="photo.small"
+            [alt]="photo.description || ('Recuerdo ' + (i + 1))"
+            loading="lazy"
+          />
+        </div>
+        <ng-template #emptyPhotos>
+          <p class="empty">Aún no subo fotos aquí, pero pronto tendrás más sorpresas.</p>
+        </ng-template>
+      </div>
+
+      <div class="preview-card" *ngIf="featuredLetter">
+        <h2>Carta destacada</h2>
+        <p class="letter-title">
+          <span>{{ featuredLetter.icon }}</span>
+          {{ featuredLetter.title }}
+        </p>
+        <p class="letter-preview">{{ featuredLetterPreview }}</p>
+        <button type="button" class="link" (click)="goToLetters()">
+          Ver todas las cartas
+          <mat-icon>arrow_outward</mat-icon>
+        </button>
+      </div>
+    </aside>
   </div>
-</div>
+</section>

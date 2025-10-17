@@ -1,15 +1,25 @@
+// src/app/core/auth-guard.ts
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from './auth';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
 
-export const authGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
+export const authGuard: CanActivateFn = (): boolean | UrlTree => {
   const router = inject(Router);
 
-  if (auth.authenticated) {
-    return true;
-  } else {
-    router.navigate(['/login']);
-    return false;
+  const win = typeof window !== 'undefined' ? window : null;
+  let hasSecretKey = false;
+
+  if (win) {
+    try {
+      hasSecretKey = !!win.localStorage?.getItem('love_secret_key');
+    } catch {
+      hasSecretKey = false;
+    }
   }
+
+  if (hasSecretKey) {
+    return true;
+  }
+
+  /** parseUrl evita side-effects durante SSR mientras forzamos /login */
+  return router.parseUrl('/login');
 };

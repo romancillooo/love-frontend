@@ -16,7 +16,7 @@
   align-items: center;
 
   width: 90%;
-  max-width: 260px;
+  max-width: 320px;
 
   background: rgba(248, 147, 164, 0.15);
   backdrop-filter: blur(8px);
@@ -42,14 +42,7 @@
   }
 }
 
-/* Animación de latido */
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.08); }
-  60% { transform: scale(0.95); }
-}
-
- .title {
+.title {
   font-family: var(--ff-display);
   font-size: 2.2rem;
   color: var(--salmon-500);

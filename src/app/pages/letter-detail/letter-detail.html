@@ -1,6 +1,17 @@
-<div class="letter-wrapper" *ngIf="letter">
-  <div class="letter-container">
-    <h1 class="title">{{ letter.title }}</h1>
+<section class="letter-wrapper" *ngIf="letter">
+  <article class="letter-container">
+    <header class="letter-header">
+      <span class="letter-icon">{{ letter.icon }}</span>
+      <div class="letter-heading">
+        <h1 class="title">{{ letter.title }}</h1>
+        <p class="subtitle">Escrita con todo mi amor para ti 💌</p>
+      </div>
+    </header>
+
     <p class="letter-text" [innerText]="displayText"></p>
-  </div>
-</div>
+
+    <footer class="letter-footer">
+      <p>Con amor infinito, tu bebito.</p>
+    </footer>
+  </article>
+</section>

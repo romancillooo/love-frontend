@@ -77,13 +77,15 @@
 }
 
 @keyframes float {
-  0% { transform: translateY(100vh) rotate(45deg); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translateY(-10vh) rotate(45deg); opacity: 0; }
-}
-
-@keyframes float {
-  0% { transform: translateY(100vh) rotate(45deg); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-10vh) rotate(45deg); opacity: 0; }
+  0% {
+    transform: translateY(100vh) rotate(45deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) rotate(45deg);
+    opacity: 0;
+  }
 }

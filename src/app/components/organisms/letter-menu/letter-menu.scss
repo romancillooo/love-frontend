@@ -1,84 +1,119 @@
 .letter-menu-wrapper {
-  padding: 5.5rem 20px 20px;
+  padding: 8rem 1.5rem 3rem;
   display: flex;
   flex-direction: column;
+  gap: 2rem;
   align-items: center;
-  font-family: var(--ff-display);
   min-height: 100vh;
+  font-family: var(--ff-display);
   text-align: center;
+  animation: fade-in-up 0.6s ease-out;
+}
+
+.menu-header {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .menu-title {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: 2.2rem;
+  margin: 0;
   color: var(--salmon-500);
-  text-shadow: 1px 1px 6px rgba(255, 105, 135, 0.4);
+  text-shadow: 0 12px 22px rgba(255, 105, 135, 0.35);
+}
+
+.menu-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #784c4c;
+  line-height: 1.6;
 }
 
 .letter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 800px;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  width: min(100%, 840px);
 }
 
 .letter-card {
-  /* 🌸 Glasmorfismo */
-  background: rgba(255, 177, 190, 0.2);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.6rem 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 177, 190, 0.18);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-
-  padding: 2rem 1rem;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  /* 👇 animación de aparición */
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   opacity: 0;
-  animation: fadeIn 0.8s ease forwards;
+  transform: translateY(16px);
+  animation: fade-in-up 0.6s ease forwards;
+  outline: none;
 
-  &:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 24px 46px rgba(0, 0, 0, 0.18);
+    background: rgba(255, 177, 190, 0.24);
   }
+}
+
+.letter-icon {
+  grid-row: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.32);
 
   .icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .letter-title {
-    font-size: 1.2rem;
-    color: #904e4e;
-    font-weight: 500;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    font-size: 2rem;
   }
 }
 
-/* 🔑 Animación suave */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(25px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.letter-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #904e4e;
+  text-align: left;
+}
+
+.letter-preview {
+  margin: 0;
+  grid-column: 2;
+  color: #5b3434;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.letter-cta {
+  grid-column: 1 / -1;
+  justify-self: flex-end;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--salmon-500);
+  margin-top: 0.4rem;
+}
+
+@media (min-width: 720px) {
+  .letter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* ✨ Efecto escalonado */
 .letter-card:nth-child(1) { animation-delay: 0.1s; }
-.letter-card:nth-child(2) { animation-delay: 0.2s; }
-.letter-card:nth-child(3) { animation-delay: 0.3s; }
-.letter-card:nth-child(4) { animation-delay: 0.4s; }
-.letter-card:nth-child(5) { animation-delay: 0.5s; }
-.letter-card:nth-child(6) { animation-delay: 0.6s; }
-/* ... puedes seguir si planeas muchas más cartas */
+.letter-card:nth-child(2) { animation-delay: 0.18s; }
+.letter-card:nth-child(3) { animation-delay: 0.26s; }
+.letter-card:nth-child(4) { animation-delay: 0.34s; }
+.letter-card:nth-child(5) { animation-delay: 0.42s; }
+.letter-card:nth-child(6) { animation-delay: 0.5s; }

@@ -1,24 +1,35 @@
-// convert-to-webp.js
-import fs from "fs";
-import path from "path";
-import sharp from "sharp";
+import fs from 'fs/promises';
+import { existsSync, mkdirSync } from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+import crypto from 'crypto';
 
-const inputDir = "public/assets/photos/love";
-const outputDir = "public/assets/photos/gallery/optimized";
-const jsonOutput = "public/assets/data/photos.json";
+const inputDir = 'public/assets/photos/love';
+const outputDir = 'public/assets/photos/gallery/optimized';
+const jsonOutput = 'public/assets/data/photos.json';
 
-// Asegurar que exista la carpeta de salida
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
+const SUPPORTED_EXT = /\.(jpg|jpeg|png|heic)$/i;
 
-const files = fs.readdirSync(inputDir).filter(file =>
-  /\.(jpg|jpeg|png|heic)$/i.test(file) // soporte básico para extensiones comunes
-);
+const ensureDir = async dir => {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+};
 
-const photos = [];
+const createStableId = (seed = '') => {
+  const digest = crypto.createHash('md5').update(seed).digest('hex').slice(0, 8);
+  return Number.parseInt(digest, 16);
+};
 
-files.forEach((file, index) => {
+const formatPhotoRecord = (baseName, createdAt, index) => ({
+  id: createStableId(baseName) + index, // suma el índice por si hubiera colisiones
+  small: `assets/photos/gallery/optimized/${baseName}-small.webp`,
+  large: `assets/photos/gallery/optimized/${baseName}-large.webp`,
+  description: '',
+  createdAt: createdAt.toISOString()
+});
+
+const processPhoto = async (file, index) => {
   const fileName = path.parse(file).name;
   const inputPath = path.join(inputDir, file);
 
@@ -28,36 +39,38 @@ files.forEach((file, index) => {
   const smallOutput = path.join(outputDir, smallFile);
   const largeOutput = path.join(outputDir, largeFile);
 
-  // Metadatos del archivo
-  const stats = fs.statSync(inputPath);
-  const createdAt = stats.birthtime || stats.mtime;
+  const stats = await fs.stat(inputPath);
+  const createdAt = stats.birthtime ?? stats.mtime;
 
-  // Convertir versión pequeña
-  sharp(inputPath)
-    .resize(400)
-    .webp({ quality: 70 })
-    .toFile(smallOutput)
-    .then(() => console.log(`✅ Small: ${file}`))
-    .catch(err => console.error(`❌ Error small ${file}`, err));
+  await Promise.all([
+    sharp(inputPath).resize(400).webp({ quality: 70 }).toFile(smallOutput),
+    sharp(inputPath).resize(1600).webp({ quality: 85 }).toFile(largeOutput)
+  ]);
 
-  // Convertir versión grande
-  sharp(inputPath)
-    .resize(1600)
-    .webp({ quality: 85 })
-    .toFile(largeOutput)
-    .then(() => console.log(`✅ Large: ${file}`))
-    .catch(err => console.error(`❌ Error large ${file}`, err));
+  console.log(`✅ Convertido ${file}`);
+  return formatPhotoRecord(fileName, createdAt, index);
+};
 
-  // Agregar al JSON
-  photos.push({
-    id: index + 1,
-    small: `assets/photos/gallery/optimized/${smallFile}`,
-    large: `assets/photos/gallery/optimized/${largeFile}`,
-    description: "",
-    createdAt: createdAt.toISOString()
-  });
+const run = async () => {
+  await ensureDir(outputDir);
+
+  const files = (await fs.readdir(inputDir)).filter(file => SUPPORTED_EXT.test(file));
+
+  if (!files.length) {
+    console.warn('⚠️  No se encontraron fotos para convertir.');
+    return;
+  }
+
+  const conversions = await Promise.all(files.map(processPhoto));
+  const sorted = conversions.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  await fs.writeFile(jsonOutput, JSON.stringify(sorted, null, 2));
+  console.log(`📸 JSON generado con ${sorted.length} fotos → ${jsonOutput}`);
+};
+
+run().catch(error => {
+  console.error('❌ Error convirtiendo imágenes', error);
+  process.exit(1);
 });
-
-// Guardar JSON
-fs.writeFileSync(jsonOutput, JSON.stringify(photos, null, 2));
-console.log(`📸 JSON generado con ${photos.length} fotos → ${jsonOutput}`);
