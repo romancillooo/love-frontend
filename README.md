@@ -12,6 +12,25 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+### Connecting to the backend API
+
+The app now consume el backend Express (`love-api`). Configura la URL base mediante la variable de entorno `NG_APP_API_URL`.
+
+1. Crea un archivo `.env` en la raíz del proyecto (o exporta la variable en tu shell) con:
+
+   ```env
+   NG_APP_API_URL=http://localhost:1/api
+   ```
+
+   Ajusta el puerto/host si tu API corre en otro lugar.
+
+2. Inicia el backend (`npm run dev` dentro de `love-api`).
+3. Levanta el frontend con `ng serve`. Angular cargará la variable `NG_APP_API_URL` al arrancar.
+
+El flujo de login ahora llama a `POST /auth/login` y todas las cartas/fotos se obtienen desde la API.
+
+- Para entrar usa tu correo o usuario junto con la contraseña configurada en el backend.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
