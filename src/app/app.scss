@@ -1,7 +1,10 @@
 /* Corazones flotando */
 .hearts-background {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   z-index: -1;
   background-color: #fef3f5;
@@ -20,14 +23,16 @@
       left: 20%;
       animation-duration: 12s;
       background: #ff6f91;
-      width: 25px; height: 25px;
+      width: 25px;
+      height: 25px;
     }
 
     &:nth-child(3) {
       left: 40%;
       animation-duration: 8s;
       background: #ffb3c1;
-      width: 15px; height: 15px;
+      width: 15px;
+      height: 15px;
     }
 
     &:nth-child(4) {
@@ -52,7 +57,8 @@
       left: 50%;
       animation-duration: 13s;
       background: #ff4b5c;
-      width: 30px; height: 30px;
+      width: 30px;
+      height: 30px;
     }
 
     &:nth-child(8) {
@@ -72,8 +78,14 @@
     border-radius: 50%;
   }
 
-  .heart::before { top: -50%; left: 0; }
-  .heart::after { left: -50%; top: 0; }
+  .heart::before {
+    top: -50%;
+    left: 0;
+  }
+  .heart::after {
+    left: -50%;
+    top: 0;
+  }
 }
 
 @keyframes float {

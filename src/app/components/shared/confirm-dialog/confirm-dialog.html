@@ -1,0 +1,12 @@
+<!-- src/app/components/shared/confirm-dialog/confirm-dialog.html -->
+<div class="confirm-backdrop" *ngIf="visible" (click)="onCancel()">
+  <div class="confirm-modal" (click)="$event.stopPropagation()">
+    <h3>{{ title }}</h3>
+    <p>{{ message }}</p>
+
+    <div class="actions">
+      <button class="cancel-btn" (click)="onCancel()">{{ cancelText }}</button>
+      <button class="confirm-btn" (click)="onConfirm()">{{ confirmText }}</button>
+    </div>
+  </div>
+</div>

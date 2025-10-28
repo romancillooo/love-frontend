@@ -6,7 +6,9 @@
   margin: 0;
   border-radius: 18px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   outline: none;
@@ -29,6 +31,83 @@
     position: relative;
     overflow: hidden;
     border-radius: 18px;
+
+    // 💾 Botón de descarga (solo desktop)
+    .download-btn {
+      position: absolute;
+      top: 0.6rem;
+      left: 0.6rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      opacity: 0;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #fff;
+      }
+
+      &:hover:not(:disabled) {
+        background: rgba(255, 105, 135, 0.8);
+        transform: scale(1.1);
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(0.95);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &:focus-visible {
+        outline: 2px solid rgba(255, 105, 135, 0.6);
+        outline-offset: 2px;
+      }
+
+      // 🔹 Ocultar en mobile y tablet
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+
+    // ❤️ Badge de favorito
+    .favorite-badge {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: fade-in 0.3s ease-out;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #fff;
+      }
+    }
 
     img {
       width: 100%;
@@ -73,5 +152,23 @@
   &:hover .photo-frame figcaption,
   &:focus-visible .photo-frame figcaption {
     opacity: 1;
+  }
+
+  // Mostrar botón de descarga al hacer hover
+  &:hover .photo-frame .download-btn,
+  &:focus-visible .photo-frame .download-btn {
+    opacity: 1;
+  }
+}
+
+// Animación para el badge de favorito
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

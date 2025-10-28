@@ -2,25 +2,27 @@
 @use '@angular/material' as mat;
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$rose-palette,
-      tertiary: mat.$red-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$rose-palette,
+        tertiary: mat.$red-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
 
   height: 100%;
-  width: 100%;        /* ✅ asegura ancho exacto sin depender de viewport */
-  max-width: 100%;    /* ✅ evita que se extienda más que la pantalla real */
+  width: 100%; /* ✅ asegura ancho exacto sin depender de viewport */
+  max-width: 100%; /* ✅ evita que se extienda más que la pantalla real */
   overflow-x: hidden; /* ✅ bloquea el pixel fantasma en iOS/Safari y macOS */
 }
 
 body {
   height: 100%;
-  width: 100%;        /* ✅ mucho mejor que 100vw */
-  max-width: 100%;    /* ✅ evita offset horizontal */
+  width: 100%; /* ✅ mucho mejor que 100vw */
+  max-width: 100%; /* ✅ evita offset horizontal */
   margin: 0;
   padding: 0;
   overflow-x: hidden !important; /* ⚔️ fuerza eliminación de overflow lateral */
@@ -40,7 +42,7 @@ body {
 
 /* Variables globales */
 :root {
-  --ff-display: "Raleway", sans-serif;
+  --ff-display: 'Raleway', sans-serif;
 
   /* Colores personalizados */
   --rose-400: #f893a4;
@@ -63,7 +65,10 @@ body {
   cursor: pointer;
   color: #fff;
   background: linear-gradient(135deg, var(--salmon-500), var(--rose-400));
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .btn:hover {
@@ -112,7 +117,8 @@ body {
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   30% {

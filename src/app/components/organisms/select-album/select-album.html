@@ -1,0 +1,68 @@
+<!-- src/app/components/organisms/select-album/select-album.html -->
+<div class="select-album-backdrop" (click)="onBackdropClick()">
+  <div class="select-album-modal" (click)="onModalClick($event)">
+    <header class="modal-header">
+      <div class="header-content">
+        <mat-icon>photo_album</mat-icon>
+        <div>
+          <h2>Agregar a álbum</h2>
+        </div>
+      </div>
+      <button type="button" class="close-btn" (click)="clearSelection(); close.emit()" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <section class="modal-body">
+      @if (isLoading) {
+      <div class="state-message">
+        <mat-icon>hourglass_top</mat-icon>
+        <p>Cargando tus álbumes...</p>
+      </div>
+      } @else if (errorMessage) {
+      <div class="state-message error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ errorMessage }}</p>
+      </div>
+      } @else {
+      <div class="album-list">
+        @for (album of albums; track album.id) {
+        <label class="album-item" [class.is-selected]="isSelected(album.id)">
+          <input
+            type="checkbox"
+            [value]="album.id"
+            [checked]="isSelected(album.id)"
+            (change)="toggleSelection(album)"
+          />
+          <div class="album-info">
+            <span class="album-name">{{ album.name }}</span>
+            <span class="album-count">{{ album.photoCount || 0 }} recuerdos</span>
+          </div>
+        </label>
+        }
+      </div>
+      }
+    </section>
+
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="clearSelection(); close.emit()">Cancelar</button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="selectedAlbumIds.size === 0 || isBusy"
+        (click)="onConfirm()"
+      >
+        {{ selectedAlbumIds.size > 1 ? 'Agregar a álbumes' : 'Agregar a álbum' }}
+      </button>
+    </footer>
+    @if (isBusy) {
+    <div class="select-album-loader">
+      <app-love-loader
+        [visible]="true"
+        [message]="selectedAlbumIds.size > 1 ? 'Agregando a tus álbumes...' : 'Agregando al álbum...'"
+        [gifSrc]="'/assets/love-loader.gif'"
+      ></app-love-loader>
+    </div>
+    }
+  </div>
+</div>

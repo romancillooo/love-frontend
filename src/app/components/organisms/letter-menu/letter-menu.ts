@@ -1,16 +1,10 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  Inject,
-  PLATFORM_ID,
-} from '@angular/core';
+// src/app/components/organisms/letter-menu/letter-menu.ts
 import { CommonModule, isPlatformBrowser, ViewportScroller } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-import { MemoriesService } from '../../../core/memories.service';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Observable, of, Subscription } from 'rxjs';
+import { catchError, filter, map, shareReplay, tap } from 'rxjs/operators';
+import { LetterService } from '../../../core/services/letter.service';
 import { Letter } from '../../../core/models/letter';
 
 @Component({
@@ -18,23 +12,36 @@ import { Letter } from '../../../core/models/letter';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './letter-menu.html',
-  styleUrls: ['./letter-menu.scss']
+  styleUrls: ['./letter-menu.scss'],
 })
 export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
-  readonly letters: Array<Letter & { preview: string }>;
+  readonly letters$: Observable<Array<Letter & { preview: string }>>;
+  loadError = '';
   private navSub?: Subscription;
   private rafId: number | null = null;
 
   constructor(
     private readonly router: Router,
-    private readonly memories: MemoriesService,
+    private readonly letterService: LetterService,
     private readonly scroller: ViewportScroller,
-    @Inject(PLATFORM_ID) private readonly platformId: Object
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) {
-    this.letters = this.memories.getAllLetters().map(letter => ({
-      ...letter,
-      preview: this.memories.getLetterPreview(letter)
-    }));
+    this.letters$ = this.letterService.getAllLetters().pipe(
+      map((letters) =>
+        letters.map((letter) => ({
+          ...letter,
+          preview: this.letterService.getLetterPreview(letter),
+        })),
+      ),
+      tap(() => {
+        this.loadError = '';
+      }),
+      catchError((error) => {
+        this.loadError = this.resolveError(error);
+        return of<Array<Letter & { preview: string }>>([]);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
   }
 
   ngOnInit() {
@@ -42,7 +49,7 @@ export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
 
     // 🔹 Scroll al top también cuando se navega hacia /letters
     this.navSub = this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
+      .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e: NavigationEnd) => {
         if (e.urlAfterRedirects.includes('/letters')) {
           this.forceScrollTop();
@@ -62,8 +69,15 @@ export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
     if (this.rafId) cancelAnimationFrame(this.rafId);
   }
 
-  openLetter(id: number) {
+  openLetter(id: string) {
     this.router.navigate(['/letter', id]);
+  }
+
+  private resolveError(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return 'No pude cargar las cartas, intenta más tarde.';
   }
 
   // ---------- Scroll robusto al top ----------
@@ -86,10 +100,10 @@ export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
         doc.querySelector('.scroll-container'),
         doc.querySelector('.app-content'),
         doc.querySelector('.page'),
-        doc.querySelector('.layout-content')
+        doc.querySelector('.layout-content'),
       ];
 
-      candidates.forEach(t => {
+      candidates.forEach((t) => {
         if (!t) return;
         if (t === window) {
           window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

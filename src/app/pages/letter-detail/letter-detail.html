@@ -1,4 +1,14 @@
-<section class="letter-wrapper" *ngIf="letter">
+<section class="letter-wrapper">
+  @if (isLoading) {
+  <div class="letter-status">
+    <p>Cargando carta…</p>
+  </div>
+  } @else if (loadError) {
+  <div class="letter-status" role="alert">
+    <p>{{ loadError }}</p>
+    <button type="button" class="btn secondary" (click)="goBack()">Volver a las cartas</button>
+  </div>
+  } @else if (letter) {
   <article class="letter-container">
     <header class="letter-header">
       <span class="letter-icon">{{ letter.icon }}</span>
@@ -14,4 +24,5 @@
       <p>Con amor infinito, tu bebito.</p>
     </footer>
   </article>
+  }
 </section>

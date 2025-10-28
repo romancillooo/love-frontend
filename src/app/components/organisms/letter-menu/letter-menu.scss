@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  align-items: center;
   min-height: 100vh;
   font-family: var(--ff-display);
   text-align: center;
@@ -15,6 +14,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin: 0 auto;
+  align-items: center;
 }
 
 .menu-title {
@@ -36,6 +37,7 @@
   grid-template-columns: 1fr;
   gap: 1.25rem;
   width: min(100%, 840px);
+  margin: 0 auto;
 }
 
 .letter-card {
@@ -51,7 +53,10 @@
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
   opacity: 0;
   transform: translateY(16px);
   animation: fade-in-up 0.6s ease forwards;
@@ -111,9 +116,33 @@
   }
 }
 
-.letter-card:nth-child(1) { animation-delay: 0.1s; }
-.letter-card:nth-child(2) { animation-delay: 0.18s; }
-.letter-card:nth-child(3) { animation-delay: 0.26s; }
-.letter-card:nth-child(4) { animation-delay: 0.34s; }
-.letter-card:nth-child(5) { animation-delay: 0.42s; }
-.letter-card:nth-child(6) { animation-delay: 0.5s; }
+.letter-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.letter-card:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.letter-card:nth-child(3) {
+  animation-delay: 0.26s;
+}
+.letter-card:nth-child(4) {
+  animation-delay: 0.34s;
+}
+.letter-card:nth-child(5) {
+  animation-delay: 0.42s;
+}
+.letter-card:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+.letter-empty {
+  text-align: center;
+  font-family: var(--ff-display);
+  color: #904e4e;
+  font-size: 1.05rem;
+  padding: 2rem 1rem;
+  background: rgba(255, 177, 190, 0.2);
+  border-radius: 16px;
+  max-width: 420px;
+  margin: 1rem auto 0;
+}

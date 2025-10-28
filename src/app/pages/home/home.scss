@@ -8,7 +8,7 @@
   animation: fade-in-up 0.6s ease-out;
 
   @media (max-width: 680px) {
-      padding: 6rem 1.5rem 3rem;
+    padding: 6rem 1.5rem 3rem;
   }
 }
 
@@ -83,7 +83,9 @@
   flex-direction: column;
   gap: 1rem;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   h2 {
     margin: 0;
@@ -110,6 +112,13 @@
     object-fit: cover;
     border-radius: 16px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  // 🔹 Ocultar la 4ta imagen en mobile
+  @media (max-width: 879px) {
+    img:nth-child(4) {
+      display: none;
+    }
   }
 }
 
@@ -164,5 +173,11 @@
 
   .actions {
     flex-direction: row;
+  }
+
+  // 🔹 Reducir tamaño de imágenes en desktop para que quepan 4 en una fila
+  .preview-photos img {
+    width: 72px;
+    height: 72px;
   }
 }

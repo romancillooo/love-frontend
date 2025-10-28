@@ -20,6 +20,16 @@
     <form (ngSubmit)="onLogin()" class="login-form">
       <div class="input-wrapper">
         <input
+          type="text"
+          placeholder="Ingresa el usuario"
+          [(ngModel)]="identifier"
+          name="identifier"
+          autocomplete="username"
+          required
+        />
+      </div>
+      <div class="input-wrapper">
+        <input
           [type]="showPassword ? 'text' : 'password'"
           placeholder="Ingresa la contra aquí amor"
           [(ngModel)]="password"
@@ -32,9 +42,9 @@
       </div>
 
       <!-- Botón con ícono -->
-      <button type="submit" class="btn primary">
+      <button type="submit" class="btn primary" [disabled]="isSubmitting">
         <mat-icon class="btn-icon">login</mat-icon>
-        Entrar
+        {{ isSubmitting ? 'Entrando...' : 'Entrar' }}
       </button>
     </form>
 

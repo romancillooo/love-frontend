@@ -6,23 +6,38 @@
     </p>
   </header>
 
-  <div class="letter-grid">
-    @for (letter of letters; track letter.id) {
-      <article
-        class="letter-card"
-        (click)="openLetter(letter.id)"
-        tabindex="0"
-        (keyup.enter)="openLetter(letter.id)"
-        role="button"
-        [attr.aria-label]="'Leer ' + letter.title"
-      >
-        <div class="letter-icon">
-          <span class="icon">{{ letter.icon }}</span>
-        </div>
-        <h3 class="letter-title">{{ letter.title }}</h3>
-        <p class="letter-preview">{{ letter.preview }}</p>
-        <span class="letter-cta">Abrir carta</span>
-      </article>
-    }
-  </div>
+  <ng-container *ngIf="!loadError; else errorBlock">
+    <ng-container *ngIf="letters$ | async as letters; else loadingBlock">
+      <div class="letter-grid" *ngIf="letters.length > 0; else emptyBlock">
+        @for (letter of letters; track letter.id) {
+        <article
+          class="letter-card"
+          (click)="openLetter(letter.id)"
+          tabindex="0"
+          (keyup.enter)="openLetter(letter.id)"
+          role="button"
+          [attr.aria-label]="'Leer ' + letter.title"
+        >
+          <div class="letter-icon">
+            <span class="icon">{{ letter.icon }}</span>
+          </div>
+          <h3 class="letter-title">{{ letter.title }}</h3>
+          <p class="letter-preview">{{ letter.preview }}</p>
+          <span class="letter-cta">Abrir carta</span>
+        </article>
+        }
+      </div>
+      <ng-template #emptyBlock>
+        <p class="letter-empty">Aún no hay cartas registradas, pero pronto habrá sorpresas. 💌</p>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #errorBlock>
+    <p class="letter-error" role="alert">{{ loadError }}</p>
+  </ng-template>
+
+  <ng-template #loadingBlock>
+    <p class="letter-loading">Cargando cartas…</p>
+  </ng-template>
 </section>

@@ -8,6 +8,23 @@
   [attr.aria-label]="photo.description || 'Abrir foto'"
 >
   <figure class="photo-frame">
+    <!-- 💾 Botón de descarga -->
+    <button
+      class="download-btn"
+      type="button"
+      (click)="onDownload($event)"
+      [disabled]="isDownloading"
+      [attr.aria-label]="'Descargar foto'"
+      title="Descargar foto"
+    >
+      <mat-icon>download</mat-icon>
+    </button>
+
+    <!-- ❤️ Indicador de favorito -->
+    <div class="favorite-badge" *ngIf="photo.isFavorite">
+      <mat-icon>favorite</mat-icon>
+    </div>
+
     <img
       [src]="photo.small"
       [alt]="photo.description || 'Foto romántica'"
@@ -16,7 +33,6 @@
     />
     <figcaption>
       <span class="photo-date">{{ photo.createdAt | date: 'd MMM y' }}</span>
-      <span class="photo-desc" *ngIf="photo.description">{{ photo.description }}</span>
     </figcaption>
   </figure>
 </article>

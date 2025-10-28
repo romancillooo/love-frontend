@@ -1,8 +1,8 @@
-import fs from 'fs/promises';
+import crypto from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
-import crypto from 'crypto';
 
 const inputDir = 'public/assets/photos/love';
 const outputDir = 'public/assets/photos/gallery/optimized';
@@ -10,7 +10,7 @@ const jsonOutput = 'public/assets/data/photos.json';
 
 const SUPPORTED_EXT = /\.(jpg|jpeg|png|heic)$/i;
 
-const ensureDir = async dir => {
+const ensureDir = async (dir) => {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -26,7 +26,7 @@ const formatPhotoRecord = (baseName, createdAt, index) => ({
   small: `assets/photos/gallery/optimized/${baseName}-small.webp`,
   large: `assets/photos/gallery/optimized/${baseName}-large.webp`,
   description: '',
-  createdAt: createdAt.toISOString()
+  createdAt: createdAt.toISOString(),
 });
 
 const processPhoto = async (file, index) => {
@@ -44,7 +44,7 @@ const processPhoto = async (file, index) => {
 
   await Promise.all([
     sharp(inputPath).resize(400).webp({ quality: 70 }).toFile(smallOutput),
-    sharp(inputPath).resize(1600).webp({ quality: 85 }).toFile(largeOutput)
+    sharp(inputPath).resize(1600).webp({ quality: 85 }).toFile(largeOutput),
   ]);
 
   console.log(`✅ Convertido ${file}`);
@@ -54,7 +54,7 @@ const processPhoto = async (file, index) => {
 const run = async () => {
   await ensureDir(outputDir);
 
-  const files = (await fs.readdir(inputDir)).filter(file => SUPPORTED_EXT.test(file));
+  const files = (await fs.readdir(inputDir)).filter((file) => SUPPORTED_EXT.test(file));
 
   if (!files.length) {
     console.warn('⚠️  No se encontraron fotos para convertir.');
@@ -63,14 +63,14 @@ const run = async () => {
 
   const conversions = await Promise.all(files.map(processPhoto));
   const sorted = conversions.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   await fs.writeFile(jsonOutput, JSON.stringify(sorted, null, 2));
   console.log(`📸 JSON generado con ${sorted.length} fotos → ${jsonOutput}`);
 };
 
-run().catch(error => {
+run().catch((error) => {
   console.error('❌ Error convirtiendo imágenes', error);
   process.exit(1);
 });

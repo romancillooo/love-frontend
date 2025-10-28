@@ -1,0 +1,77 @@
+<!-- Uploader modal -->
+<div class="uploader-backdrop" (click)="closeDialog()">
+  <div class="uploader-modal" (click)="$event.stopPropagation()">
+    <div class="uploader-toolbar">
+      <h2>Subir recuerdos</h2>
+      <button class="close-btn" (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Zona de carga -->
+    <div
+      class="drop-zone"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      [class.dragging]="isDragging"
+      [class.disabled]="files.length >= MAX_FILES"
+      (click)="files.length < MAX_FILES && fileInput.click()"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      <p *ngIf="files.length < MAX_FILES">
+        Arrastra y suelta tus imágenes aquí<br />o haz clic para seleccionarlas
+      </p>
+      <p *ngIf="files.length >= MAX_FILES" class="limit-msg">
+        Has alcanzado el límite de {{ MAX_FILES }} imágenes
+      </p>
+      <input type="file" (change)="onFileSelected($event)" multiple accept="image/*" #fileInput />
+    </div>
+
+    <!-- Previsualización -->
+    <div class="file-list" *ngIf="files.length > 0">
+      <h4>Previsualización:</h4>
+      <div class="preview-grid">
+        <div class="preview-item" *ngFor="let file of files">
+          <img [src]="getFilePreview(file)" [alt]="file.name" (click)="openPreview(file)" />
+          <button class="remove-btn" (click)="removeFile(file)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="uploader-footer">
+      <button class="cancel-btn" (click)="closeDialog()">Cancelar</button>
+      <button
+        class="upload-btn"
+        (click)="uploadFiles()"
+        [disabled]="files.length === 0 || isUploading"
+      >
+        Subir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview modal (muestra imagen seleccionada) -->
+<app-photo-preview
+  *ngIf="activePhoto"
+  [photo]="activePhoto"
+  [index]="activeIndex ?? 0"
+  [total]="files.length"
+  [hasNext]="activeIndex !== null && activeIndex < files.length - 1"
+  [hasPrevious]="activeIndex !== null && activeIndex > 0"
+  [showActions]="false"
+  (next)="nextPhoto()"
+  (previous)="previousPhoto()"
+  (close)="closePreview()"
+></app-photo-preview>
+
+<!-- 💕 Loader global mientras se suben las imágenes -->
+<app-love-loader
+  [visible]="isLoaderVisible"
+  [message]="'Procesando tus recuerdos y enviándolos al cielo... ☁️💞'"
+  [gifSrc]="'assets/love-loader.gif'"
+></app-love-loader>

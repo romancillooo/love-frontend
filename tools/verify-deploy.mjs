@@ -17,31 +17,34 @@ import { chromium } from 'playwright';
 const DEFAULT_OPTIONS = {
   url: 'http://localhost:4200/login',
   selector: '.login-wrapper',
-  timeout: 20_000
+  timeout: 20_000,
 };
 
 function parseArgs(argv) {
-  return argv.slice(2).reduce((acc, arg) => {
-    if (!arg.startsWith('--')) {
-      return acc;
-    }
+  return argv.slice(2).reduce(
+    (acc, arg) => {
+      if (!arg.startsWith('--')) {
+        return acc;
+      }
 
-    const [key, value = ''] = arg.slice(2).split('=');
-    switch (key) {
-      case 'url':
-        acc.url = value || acc.url;
-        break;
-      case 'selector':
-        acc.selector = value || acc.selector;
-        break;
-      case 'timeout':
-        acc.timeout = Number.parseInt(value, 10) || acc.timeout;
-        break;
-      default:
-        console.warn(`⚠️  Flag desconocida ignorada: --${key}`);
-    }
-    return acc;
-  }, { ...DEFAULT_OPTIONS });
+      const [key, value = ''] = arg.slice(2).split('=');
+      switch (key) {
+        case 'url':
+          acc.url = value || acc.url;
+          break;
+        case 'selector':
+          acc.selector = value || acc.selector;
+          break;
+        case 'timeout':
+          acc.timeout = Number.parseInt(value, 10) || acc.timeout;
+          break;
+        default:
+          console.warn(`⚠️  Flag desconocida ignorada: --${key}`);
+      }
+      return acc;
+    },
+    { ...DEFAULT_OPTIONS },
+  );
 }
 
 async function verifyDeployment(options) {
@@ -49,13 +52,13 @@ async function verifyDeployment(options) {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     if (msg.type() === 'error') {
       errors.push(`[console] ${msg.text()}`);
     }
   });
 
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     errors.push(`[pageerror] ${error.message}`);
   });
 
@@ -63,7 +66,7 @@ async function verifyDeployment(options) {
     console.log(`🚀 Abriendo ${options.url}`);
     const response = await page.goto(options.url, {
       waitUntil: 'domcontentloaded',
-      timeout: options.timeout
+      timeout: options.timeout,
     });
 
     if (!response || !response.ok()) {
@@ -75,7 +78,7 @@ async function verifyDeployment(options) {
 
     if (errors.length) {
       console.error('❌ Se detectaron errores durante el renderizado:');
-      errors.forEach(err => console.error(`   • ${err}`));
+      errors.forEach((err) => console.error(`   • ${err}`));
       process.exitCode = 1;
     } else {
       console.log('✅ Sin errores de consola ni excepciones.');
@@ -83,7 +86,7 @@ async function verifyDeployment(options) {
   } catch (error) {
     console.error('❌ La verificación falló:', error.message);
     if (errors.length) {
-      errors.forEach(err => console.error(`   • ${err}`));
+      errors.forEach((err) => console.error(`   • ${err}`));
     }
     process.exitCode = 1;
   } finally {
@@ -92,7 +95,7 @@ async function verifyDeployment(options) {
 }
 
 const options = parseArgs(process.argv);
-verifyDeployment(options).catch(error => {
+verifyDeployment(options).catch((error) => {
   console.error('❌ Error inesperado en la verificación:', error);
   process.exit(1);
 });

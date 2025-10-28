@@ -1,18 +1,76 @@
 <!-- src/app/components/molecules/photo-preview/photo-preview.html -->
 <div class="preview-backdrop" *ngIf="photo" (click)="onClose()">
-  <article class="preview-modal" (click)="$event.stopPropagation()" role="dialog">
+  <article class="preview-modal" (click)="onModalClick($event)" role="dialog">
     <header class="preview-toolbar">
+      <div class="left-tools">
+        <!-- 🔹 Cerrar -->
+        <button class="icon-btn close-icon-btn" (click)="onClose()" aria-label="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <!-- ❤️ Favorito (solo si showActions es true) -->
+        <button
+          *ngIf="showActions"
+          class="icon-btn favorite-icon-btn"
+          (click)="onToggleFavorite()"
+          [class.is-favorite]="photo.isFavorite"
+          [attr.aria-label]="photo.isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+        >
+          <mat-icon>{{ photo.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+
+        <!-- 🔹 Opciones (descargar / eliminar) -->
+        <div *ngIf="showActions" class="options-wrapper">
+          <button
+            type="button"
+            class="icon-btn options-icon-btn"
+            (click)="toggleOptionsMenu($event)"
+            aria-label="Más opciones"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <div class="options-menu" *ngIf="showOptionsMenu" (click)="$event.stopPropagation()">
+            <button
+              *ngIf="!albumContextId"
+              type="button"
+              (click)="onAddToAlbum()"
+            >
+              <mat-icon>photo_album</mat-icon>
+              Agregar a álbum
+            </button>
+            <button
+              *ngIf="albumContextId"
+              type="button"
+              (click)="onRemoveFromAlbum()"
+            >
+              <mat-icon>remove_circle_outline</mat-icon>
+              Eliminar de este álbum
+            </button>
+            <button type="button" (click)="onDownload()" [disabled]="isDownloading">
+              <mat-icon>download</mat-icon>
+              Descargar
+            </button>
+            <button type="button" (click)="onDelete()">
+              <mat-icon>delete</mat-icon>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 Metadatos al lado derecho -->
       <div class="preview-meta" *ngIf="photo">
         <time class="preview-date">{{ photo.createdAt | date: 'd MMMM, y' }}</time>
         <span class="preview-count">{{ index + 1 }} / {{ total }}</span>
       </div>
     </header>
 
-    <div class="preview-content">
-      <figure class="preview-frame">
-        <button type="button" class="nav-btn prev" (click)="onPrevious()" [disabled]="!hasPrevious">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
+  <div class="preview-content">
+    <figure class="preview-frame">
+      <button type="button" class="nav-btn prev" (click)="onPrevious()" [disabled]="!hasPrevious">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
         <img [src]="photo.large" [alt]="photo.description || 'Foto romántica'" />
 
@@ -22,14 +80,26 @@
 
         <figcaption>
           <p class="preview-description">
-            {{ photo.description || '💖 Te amo mucho mi amor hermosa 💖' }}
+            💖 Te amo mucho mi amor hermosa 💖
           </p>
         </figcaption>
+
       </figure>
     </div>
 
     <footer class="preview-footer">
-      <button type="button" class="close-cta" (click)="onClose()">Cerrar y seguir amándonos ✨</button>
+      <button type="button" class="close-cta" (click)="onClose()">
+        Cerrar y seguir amándonos ✨
+      </button>
     </footer>
+    @if (isRemoveFromAlbumBusy) {
+    <div class="preview-loader-overlay">
+      <app-love-loader
+        [visible]="true"
+        [message]="'Quitando del álbum...'"
+        [gifSrc]="'/assets/love-loader.gif'"
+      ></app-love-loader>
+    </div>
+    }
   </article>
 </div>

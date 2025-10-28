@@ -1,7 +1,8 @@
 export interface Letter {
-  id: number;
+  id: string;
   title: string;
   icon: string;
   content: string;
   createdAt?: string;
+  legacyId?: number;
 }

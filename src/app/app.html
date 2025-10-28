@@ -1,3 +1,6 @@
+<!-- src/app/app.html -->
+
+<!-- 🔹 Fondo animado de corazones -->
 <div class="hearts-background">
   <div class="heart"></div>
   <div class="heart"></div>
@@ -9,7 +12,14 @@
   <div class="heart"></div>
 </div>
 
+<!-- 🔹 Contenido principal -->
 <main class="main-content">
   <app-navbar></app-navbar>
   <router-outlet></router-outlet>
 </main>
+
+<!-- 🔹 Loader global (solo visible si isLoading es true) -->
+<app-love-loader
+  [visible]="isLoading()"
+  [message]="loaderMessage()"
+></app-love-loader>

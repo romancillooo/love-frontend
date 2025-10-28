@@ -1,6 +1,7 @@
 <nav class="navbar" *ngIf="isRouteAllowed" [class.hidden]="!isVisible">
   <div class="navbar-content">
     <div class="primary-row">
+      <!-- 🔹 Lado izquierdo -->
       <div class="left-slot">
         <button
           *ngIf="showBackButton"
@@ -22,9 +23,33 @@
         </button>
       </div>
 
-      <button class="icon-btn ghost" disabled></button>
+      <!-- 🔹 Botón "+" con menú desplegable -->
+      <div *ngIf="isPhotosRoute" class="upload-menu-container">
+        <button
+          class="upload-btn icon-btn"
+          type="button"
+          (click)="toggleUploadMenu()"
+          aria-label="Subir contenido"
+          [class.is-active]="uploadMenuOpen()"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+
+        <!-- Menú desplegable -->
+        <div class="upload-dropdown" *ngIf="uploadMenuOpen()">
+          <button type="button" class="dropdown-item" (click)="openImageUploader()">
+            <mat-icon>photo_library</mat-icon>
+            <span>Subir Recuerdos</span>
+          </button>
+          <button type="button" class="dropdown-item" (click)="openAlbumCreator()">
+            <mat-icon>photo_album</mat-icon>
+            <span>Crear Nuevo Álbum</span>
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- 🔹 Enlaces -->
     <div class="nav-links" [class.is-open]="menuOpen()">
       <a
         *ngFor="let link of navigationLinks"
@@ -38,6 +63,7 @@
         <mat-icon>{{ link.icon }}</mat-icon>
         <span>{{ link.label }}</span>
       </a>
+
       <button type="button" class="nav-link logout-link" (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Salir</span>
@@ -46,9 +72,15 @@
   </div>
 </nav>
 
-<!-- 🔹 Overlay para mobile -->
-<div
-  class="navbar-overlay"
-  *ngIf="menuOpen()"
-  (click)="closeMenu()"
-></div>
+<!-- 🔹 Overlay mobile -->
+<div class="navbar-overlay" *ngIf="menuOpen()" (click)="closeMenu()"></div>
+
+<!-- 🔹 Overlay para cerrar menú de upload -->
+<div class="upload-menu-overlay" *ngIf="uploadMenuOpen()" (click)="closeUploadMenu()"></div>
+
+<!-- 🔹 Modal de crear álbum -->
+<app-album-creator
+  *ngIf="showAlbumCreator()"
+  (close)="closeAlbumCreator()"
+  (create)="onCreateAlbum($event)"
+></app-album-creator>

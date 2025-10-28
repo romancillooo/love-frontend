@@ -1,0 +1,89 @@
+<!-- src/app/components/organisms/album-creator/album-creator.html -->
+<div class="album-creator-backdrop" (click)="onClose()">
+  <div class="album-creator-modal" (click)="$event.stopPropagation()">
+    <!-- 🔹 Header (igual que ImageUploader) -->
+    <div class="modal-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">photo_album</mat-icon>
+        <h2 class="modal-title">{{ isEditMode ? 'Editar Álbum' : 'Crear Nuevo Álbum' }}</h2>
+      </div>
+      <button class="close-btn" type="button" (click)="onClose()" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- 🔹 Form -->
+    <form class="modal-body" (ngSubmit)="onSubmit()">
+      <!-- Nombre del álbum -->
+      <div class="form-group">
+        <label for="albumName" class="form-label">
+          <mat-icon>label</mat-icon>
+          Nombre del Álbum
+        </label>
+        <input
+          id="albumName"
+          type="text"
+          class="form-input"
+          [(ngModel)]="albumName"
+          name="albumName"
+          placeholder="Ej: Vacaciones 2024"
+          maxlength="50"
+          required
+          [disabled]="isSubmitting || isDeleting"
+        />
+        <small class="form-hint">{{ albumName.length }}/50 caracteres</small>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="albumDescription" class="form-label">
+          <mat-icon>description</mat-icon>
+          Descripción (opcional)
+        </label>
+        <textarea
+          id="albumDescription"
+          class="form-textarea"
+          [(ngModel)]="albumDescription"
+          name="albumDescription"
+          placeholder="Agrega una descripción para recordar este momento especial..."
+          maxlength="200"
+          rows="4"
+          [disabled]="isSubmitting || isDeleting"
+        ></textarea>
+        <small class="form-hint">{{ albumDescription.length }}/200 caracteres</small>
+      </div>
+
+      <!-- 🔹 Actions -->
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onClose()"
+          [disabled]="isSubmitting || isDeleting"
+        >
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        @if (isEditMode) {
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="onRemove()"
+          [disabled]="isSubmitting || isDeleting"
+        >
+          <mat-icon>delete</mat-icon>
+          {{ deleteLabel }}
+        </button>
+        }
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!isValid || isSubmitting || isDeleting"
+        >
+          <mat-icon>{{ submitIcon }}</mat-icon>
+          {{ submitLabel }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

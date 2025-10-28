@@ -1,47 +1,62 @@
-import {
-  Component,
-  Inject,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  PLATFORM_ID
-} from '@angular/core';
 import { CommonModule, isPlatformBrowser, ViewportScroller } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
+import { AfterViewInit, Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { filter } from 'rxjs/operators';
+import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
-import { MemoriesService } from '../../core/memories.service';
-import { Photo } from '../../core/models/photo';
+import { PhotoService } from '../../core/services/photo.service';
+import { LetterService } from '../../core/services/letter.service';
 import { Letter } from '../../core/models/letter';
+import { Photo } from '../../core/models/photo';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, MatIconModule],
   templateUrl: './home.html',
-  styleUrls: ['./home.scss']
+  styleUrls: ['./home.scss'],
 })
 export class HomePage implements OnInit, AfterViewInit, OnDestroy {
-  readonly featuredPhotos: Photo[];
-  readonly featuredLetter: Letter | undefined;
-  readonly featuredLetterPreview: string;
+  featuredPhotos: Photo[] = [];
+  featuredLetter: Letter | undefined;
+  featuredLetterPreview = '';
 
   private navSub?: Subscription;
   private rafId: number | null = null;
 
   constructor(
     private readonly router: Router,
-    private readonly memories: MemoriesService,
+    private readonly photoService: PhotoService,
+    private readonly letterService: LetterService,
     private readonly scroller: ViewportScroller,
-    @Inject(PLATFORM_ID) private readonly platformId: Object
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) {
-    this.featuredPhotos = this.memories.getRecentPhotos(3);
-    this.featuredLetter = this.memories.getAllLetters()[0];
-    this.featuredLetterPreview = this.featuredLetter
-      ? this.memories.getLetterPreview(this.featuredLetter, 120)
-      : '';
+    // 🔹 Cargar fotos recientes (4 para desktop, 3 se mostrarán en mobile)
+    this.photoService.getAllPhotos().subscribe((photos) => {
+      this.featuredPhotos = photos.slice(0, 4);
+    });
+
+    // 🔹 Cargar carta destacada (siempre la más reciente)
+    this.letterService.getAllLetters().subscribe((letters) => {
+      // Filtrar cartas que tienen fecha y ordenar por más reciente
+      const lettersWithDate = letters.filter((letter) => letter.createdAt);
+
+      if (lettersWithDate.length > 0) {
+        // Ordenar por fecha descendente (más reciente primero) por si acaso
+        lettersWithDate.sort((a, b) => {
+          return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime();
+        });
+
+        // Tomar la carta más reciente
+        this.featuredLetter = lettersWithDate[0];
+        this.featuredLetterPreview = this.letterService.getLetterPreview(this.featuredLetter, 120);
+      } else if (letters.length > 0) {
+        // Si ninguna carta tiene fecha, tomar la primera disponible
+        this.featuredLetter = letters[0];
+        this.featuredLetterPreview = this.letterService.getLetterPreview(this.featuredLetter, 120);
+      }
+    });
   }
 
   ngOnInit() {
@@ -49,7 +64,7 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
     // 🔹 Detecta cuando se navega hacia /home
     this.navSub = this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
+      .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e: NavigationEnd) => {
         if (e.urlAfterRedirects === '/home' || e.urlAfterRedirects === '/') {
           this.forceScrollTop();
@@ -97,10 +112,10 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
         doc.querySelector('.scroll-container'),
         doc.querySelector('.app-content'),
         doc.querySelector('.page'),
-        doc.querySelector('.layout-content')
+        doc.querySelector('.layout-content'),
       ];
 
-      candidates.forEach(t => {
+      candidates.forEach((t) => {
         if (!t) return;
         if (t === window) {
           window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

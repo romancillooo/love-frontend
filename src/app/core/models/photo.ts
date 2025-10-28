@@ -1,9 +1,12 @@
 export interface Photo {
-  id: number;
+  id: string;
+  title?: string;
   small: string;
   large: string;
   description: string;
   createdAt: string;
-  tags?: string[];
+  tags: string[];
   location?: string;
+  legacyId?: number;
+  isFavorite?: boolean; // 🔹 Campo para marcar como favorita
 }

@@ -1,4 +1,6 @@
+<!-- src/app/components/organisms/photo-gallery/photo-gallery.html -->
 <section class="gallery-container">
+  <!-- 🌸 Encabezado -->
   <header class="gallery-header">
     <div class="gallery-heading">
       <h1 class="gallery-title">Nuestros recuerdos</h1>
@@ -7,57 +9,168 @@
       </p>
     </div>
 
-    <div class="gallery-filters" aria-label="Filtrar por año">
-      @for (year of filterYears; track year) {
-        <button
-          type="button"
-          class="filter-chip"
-          [class.is-active]="activeYear === year"
-          (click)="filterByYear(year)"
-        >
-          {{ year === 'all' ? 'Todos' : year }}
-        </button>
+    <!-- 🔹 Filtros -->
+    <div
+      class="gallery-filters"
+      aria-label="Filtrar fotos"
+      [class.can-scroll]="shouldEnableFilterScroll"
+    >
+      <!-- Favoritos -->
+      <button
+        type="button"
+        class="filter-chip"
+        [class.is-active]="activeFilter === 'favorites'"
+        (click)="applyFilter('favorites')"
+      >
+        <span class="filter-icon">❤️</span>
+        <span class="filter-label">Favoritos</span>
+      </button>
+
+      <!-- Todos -->
+      <button
+        type="button"
+        class="filter-chip"
+        [class.is-active]="activeFilter === 'all'"
+        (click)="applyFilter('all')"
+      >
+        Todos
+      </button>
+
+      <!-- Álbumes -->
+      @for (album of albums; track album.id) {
+      <button
+        type="button"
+        class="filter-chip"
+        [class.is-active]="isAlbumActive(album.id)"
+        (click)="applyAlbumFilter(album.id)"
+      >
+        <span class="filter-label">{{ album.name }}</span>
+      </button>
       }
     </div>
   </header>
 
-  @if (isSkeletonVisible) {
-    <div class="gallery-skeleton" aria-hidden="true">
-      @for (placeholder of skeletonPlaceholders; track placeholder) {
-        <div class="skeleton-card"></div>
-      }
-      <p class="skeleton-message">Cargando recuerdos…</p>
-    </div>
+  <!-- 🔸 Estado: Cargando -->
+  @if (isSkeletonVisible && !loadError) {
+  <div class="gallery-skeleton" aria-hidden="true">
+    @for (placeholder of skeletonPlaceholders; track placeholder) {
+    <div class="skeleton-card"></div>
+    }
+    <p class="skeleton-message">Cargando recuerdos…</p>
+  </div>
   }
 
-  @if (photos.length === 0) {
-    <div class="gallery-empty">
-      <p>No encontramos recuerdos para ese filtro. Prueba con otro año 💖</p>
-    </div>
+  <!-- 🔸 Estado: Error -->
+  @if (loadError) {
+  <div class="gallery-error" role="alert">
+    <p>{{ loadError }}</p>
+    <button type="button" class="btn secondary" (click)="retryLoading()">Reintentar</button>
+  </div>
   } @else {
-    <div class="gallery-grid" [class.is-loading]="isSkeletonVisible">
-      @for (photo of photos; track photo.id) {
-        <div class="gallery-item" [class.is-loaded]="hasPhotoLoaded(photo.id)">
-          <app-photo-card
-            [photo]="photo"
-            (openPreview)="openPreview($event)"
-            (imageLoaded)="onPhotoLoaded($event)"
-          ></app-photo-card>
-        </div>
-      }
+  <!-- 🔸 Estado: Sin resultados -->
+  @if (photos.length === 0) {
+  <div class="gallery-empty">
+    @if (activeFilter === 'favorites') {
+      <p>Aún no tienes fotos favoritas. ¡Marca algunas con el corazón! ❤️</p>
+    } @else if (isAlbumSelectedWithoutPhotos()) {
+      <p>No encontré recuerdos en este álbum. Prueba con otra opción preciosa 💖</p>
+      <button type="button" class="btn" (click)="applyFilter('all')">
+        Agregar Fotos
+      </button>
+    } @else {
+      <p>No encontré recuerdos para ese filtro. Prueba con otra opción preciosa 💖</p>
+    }
+  </div>
+  } @else {
+  <!-- 🔹 Grid de fotos -->
+  <div class="gallery-grid" [class.is-loading]="isSkeletonVisible">
+    @for (photo of photos; track photo.id) {
+    <div class="gallery-item" [class.is-loaded]="hasPhotoLoaded(photo.id)">
+      <app-photo-card
+        [photo]="photo"
+        (openPreview)="openPreview($event)"
+        (imageLoaded)="onPhotoLoaded($event)"
+      ></app-photo-card>
     </div>
+    }
+  </div>
+  } }
+
+  <!-- 🌸 Modal de vista previa -->
+  @if (selectedPhoto) {
+<app-photo-preview
+  [photo]="selectedPhoto"
+  [hasNext]="hasNextPhoto"
+  [hasPrevious]="hasPreviousPhoto"
+  [index]="selectedIndex"
+  [total]="photos.length"
+  [albumContextId]="currentAlbumId"
+  [albumContextName]="currentAlbumName"
+  [isRemoveFromAlbumBusy]="isRemoveFromAlbumLoading"
+  (close)="closePreview()"
+  (next)="showNextPhoto()"
+  (previous)="showPreviousPhoto()"
+  (requestDelete)="photoPendingDeletion = $event; confirmPhotoDeleteVisible = true"
+  (requestAddToAlbum)="onRequestAddToAlbum($event)"
+  (requestRemoveFromAlbum)="onRequestRemoveFromAlbum($event)"
+  (toggleFavorite)="onToggleFavorite($event)"
+></app-photo-preview>
   }
 
-  @if (selectedPhoto) {
-    <app-photo-preview
-      [photo]="selectedPhoto"
-      [hasNext]="hasNextPhoto"
-      [hasPrevious]="hasPreviousPhoto"
-      [index]="selectedIndex"
-      [total]="photos.length"
-      (close)="closePreview()"
-      (next)="showNextPhoto()"
-      (previous)="showPreviousPhoto()"
-    ></app-photo-preview>
-  }
+  <!-- 💖 Loader global (overlay fijo) -->
+  <app-love-loader
+    class="gallery-loader-overlay"
+    [visible]="isLoaderVisible"
+    [message]="loaderMessage"
+    [gifSrc]="'/assets/love-loader.gif'"
+  ></app-love-loader>
 </section>
+
+@if (showAlbumCreator) {
+<app-album-creator
+  [initialAlbum]="albumBeingEdited"
+  (close)="closeAlbumEditor()"
+  (update)="onAlbumUpdate($event)"
+  (remove)="onAlbumRemove($event)"
+></app-album-creator>
+}
+
+<app-confirm-dialog
+  [visible]="confirmDeleteVisible"
+  title="¿Eliminar álbum?"
+  message="Esta acción eliminará el álbum y no podrás recuperarlo."
+  confirmText="Sí, eliminar"
+  cancelText="Cancelar"
+  (confirm)="confirmAlbumRemoval()"
+  (cancel)="cancelAlbumRemoval()"
+></app-confirm-dialog>
+
+@if (showSelectAlbumModal) {
+<app-select-album
+  [photoId]="photoIdForAlbum"
+  [photoLabel]="photoLabelForAlbum"
+  [isBusy]="isAddToAlbumLoading"
+  (close)="cancelAlbumSelection()"
+  (confirm)="addPhotoToSelectedAlbums($event)"
+></app-select-album>
+}
+
+<app-confirm-dialog
+  [visible]="confirmPhotoDeleteVisible"
+  title="¿Eliminar este recuerdo?"
+  message="Si eliminas esta foto, se borrará para siempre de tus recuerdos."
+  confirmText="Sí, eliminar"
+  cancelText="Cancelar"
+  (confirm)="confirmPhotoRemoval()"
+  (cancel)="cancelPhotoRemoval()"
+></app-confirm-dialog>
+
+<app-confirm-dialog
+  [visible]="confirmRemoveFromAlbumVisible"
+  [title]="'Quitar de ' + (albumNameForRemoval || 'este álbum') + '?'"
+  [message]="'La foto dejará de aparecer en este álbum, pero seguirá existiendo en tu galería.'"
+  confirmText="Sí, quitar"
+  cancelText="Cancelar"
+  (confirm)="confirmRemoveFromAlbum()"
+  (cancel)="cancelRemoveFromAlbum()"
+></app-confirm-dialog>
