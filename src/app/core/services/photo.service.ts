@@ -1,7 +1,7 @@
 // src/app/core/services/photo.service.ts
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 import { buildApiUrl } from '../api.config';
 import { Photo } from '../models/photo';
@@ -50,7 +50,42 @@ export class PhotoService {
   private readonly refreshSubject = new Subject<void>();
   refresh$ = this.refreshSubject.asObservable();
 
+  /** 🔹 Estado del modo de selección (comunicación navbar -> galería) */
+  private readonly selectionModeSubject = new Subject<boolean>();
+  selectionMode$ = this.selectionModeSubject.asObservable();
+
+  /** 🔹 Conteo de items seleccionados */
+  private readonly selectionCountSubject = new BehaviorSubject<number>(0);
+  selectionCount$ = this.selectionCountSubject.asObservable();
+
+  /** 🔹 Trigger para solicitar borrado desde el navbar */
+  private readonly deleteRequestSubject = new Subject<void>();
+  deleteRequest$ = this.deleteRequestSubject.asObservable();
+
+  /** 🔹 Trigger para solicitar agregar a álbum en lote */
+  private readonly batchAddToAlbumRequestSubject = new Subject<void>();
+  batchAddToAlbumRequest$ = this.batchAddToAlbumRequestSubject.asObservable();
+
   constructor(private http: HttpClient) {}
+
+  setSelectionMode(isActive: boolean) {
+    this.selectionModeSubject.next(isActive);
+    if (!isActive) {
+      this.selectionCountSubject.next(0); // Reset count on exit
+    }
+  }
+
+  updateSelectionCount(count: number) {
+    this.selectionCountSubject.next(count);
+  }
+
+  requestBatchDelete() {
+    this.deleteRequestSubject.next();
+  }
+
+  requestBatchAddToAlbum() {
+    this.batchAddToAlbumRequestSubject.next();
+  }
 
   // ========================================================
   // 📸 1. Obtener todas las fotos
@@ -100,9 +135,13 @@ export class PhotoService {
   // ========================================================
   // 📤 3. Subir nuevas fotos (notifica refresh$ al finalizar)
   // ========================================================
-  uploadPhotos(files: File[], folder = 'photos'): Observable<UploadedPhoto[]> {
+  uploadPhotos(files: File[], folder = 'photos', creationDates?: string[]): Observable<UploadedPhoto[]> {
     const formData = new FormData();
     for (const file of files) formData.append('images', file);
+
+    if (creationDates && creationDates.length > 0) {
+      creationDates.forEach((date) => formData.append('creationDates[]', date));
+    }
 
     return new Observable(observer => {
       this.http
@@ -143,6 +182,21 @@ export class PhotoService {
           },
           error: (err) => observer.error(err),
         });
+    });
+  }
+
+  // 🔹 Eliminar múltiples fotos (Batch Delete)
+  deletePhotosBatch(ids: string[]): Observable<{ message: string; count: number }> {
+    const url = buildApiUrl('photos/batch-delete');
+    return new Observable((observer) => {
+      this.http.post<{ message: string; count: number }>(url, { ids }).subscribe({
+        next: (res) => {
+          this.clearCacheAndRefresh();
+          observer.next(res);
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
     });
   }
 

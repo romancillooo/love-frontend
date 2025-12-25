@@ -1,105 +1,48 @@
-<!-- src/app/components/molecules/photo-preview/photo-preview.html -->
-<div class="preview-backdrop" *ngIf="photo" (click)="onClose()">
-  <article class="preview-modal" (click)="onModalClick($event)" role="dialog">
-    <header class="preview-toolbar">
-      <div class="left-tools">
-        <!-- 🔹 Cerrar -->
-        <button class="icon-btn close-icon-btn" (click)="onClose()" aria-label="Cerrar">
-          <mat-icon>close</mat-icon>
-        </button>
-
-        <!-- ❤️ Favorito (solo si showActions es true) -->
-        <button
-          *ngIf="showActions"
-          class="icon-btn favorite-icon-btn"
-          (click)="onToggleFavorite()"
-          [class.is-favorite]="photo.isFavorite"
-          [attr.aria-label]="photo.isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'"
-        >
-          <mat-icon>{{ photo.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
-        </button>
-
-        <!-- 🔹 Opciones (descargar / eliminar) -->
-        <div *ngIf="showActions" class="options-wrapper">
-          <button
-            type="button"
-            class="icon-btn options-icon-btn"
-            (click)="toggleOptionsMenu($event)"
-            aria-label="Más opciones"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-
-          <div class="options-menu" *ngIf="showOptionsMenu" (click)="$event.stopPropagation()">
-            <button
-              *ngIf="!albumContextId"
-              type="button"
-              (click)="onAddToAlbum()"
-            >
-              <mat-icon>photo_album</mat-icon>
-              Agregar a álbum
-            </button>
-            <button
-              *ngIf="albumContextId"
-              type="button"
-              (click)="onRemoveFromAlbum()"
-            >
-              <mat-icon>remove_circle_outline</mat-icon>
-              Eliminar de este álbum
-            </button>
-            <button type="button" (click)="onDownload()" [disabled]="isDownloading">
-              <mat-icon>download</mat-icon>
-              Descargar
-            </button>
-            <button type="button" (click)="onDelete()">
-              <mat-icon>delete</mat-icon>
-              Eliminar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🔹 Metadatos al lado derecho -->
-      <div class="preview-meta" *ngIf="photo">
-        <time class="preview-date">{{ photo.createdAt | date: 'd MMMM, y' }}</time>
-        <span class="preview-count">{{ index + 1 }} / {{ total }}</span>
-      </div>
-    </header>
-
-  <div class="preview-content">
-    <figure class="preview-frame">
-      <button type="button" class="nav-btn prev" (click)="onPrevious()" [disabled]="!hasPrevious">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-
-        <img [src]="photo.large" [alt]="photo.description || 'Foto romántica'" />
-
-        <button type="button" class="nav-btn next" (click)="onNext()" [disabled]="!hasNext">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-
-        <figcaption>
-          <p class="preview-description">
-            💖 Te amo mucho mi amor hermosa 💖
-          </p>
-        </figcaption>
-
-      </figure>
+<div class="preview-overlay">
+  <!-- 🏗️ Header con Acciones -->
+  <div class="preview-header" (click)="$event.stopPropagation()">
+    <div class="header-actions-left">
+      <!-- Espacio futuro (info de foto, etc) -->
     </div>
 
-    <footer class="preview-footer">
-      <button type="button" class="close-cta" (click)="onClose()">
-        Cerrar y seguir amándonos ✨
+    <div class="header-actions-right">
+      <!-- 🗑️ Borrar -->
+      <button class="action-btn delete" type="button" (click)="onDelete()" title="Eliminar recuerdo">
+        <mat-icon>delete</mat-icon>
       </button>
-    </footer>
-    @if (isRemoveFromAlbumBusy) {
-    <div class="preview-loader-overlay">
-      <app-love-loader
-        [visible]="true"
-        [message]="'Quitando del álbum...'"
-        [gifSrc]="'/assets/love-loader.gif'"
-      ></app-love-loader>
+
+      <!-- 💾 Descargar -->
+      <button class="action-btn download" type="button" (click)="downloadImage()" title="Descargar">
+        <mat-icon>download</mat-icon>
+      </button>
+
+      <!-- ❌ Cerrar -->
+      <button class="action-btn close" type="button" (click)="onClose()" title="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
-    }
-  </article>
+  </div>
+
+  <!-- ⬅️ Botón Anterior -->
+  @if (hasPrev) {
+  <button class="nav-btn prev" type="button" (click)="$event.stopPropagation(); prev.emit()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  }
+
+  <!-- ➡️ Botón Siguiente -->
+  @if (hasNext) {
+  <button class="nav-btn next" type="button" (click)="$event.stopPropagation(); next.emit()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+  }
+
+  <!-- 🖼️ Contenedor de la Imagen -->
+  <div class="image-container" (click)="$event.stopPropagation()">
+    <img
+      [src]="photo.large || photo.small"
+      [alt]="photo.description || 'Recuerdo'"
+      class="preview-image"
+    />
+  </div>
 </div>

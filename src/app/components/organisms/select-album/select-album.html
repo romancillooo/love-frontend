@@ -19,11 +19,19 @@
         <mat-icon>hourglass_top</mat-icon>
         <p>Cargando tus álbumes...</p>
       </div>
-      } @else if (errorMessage) {
       <div class="state-message error">
         <mat-icon>error_outline</mat-icon>
         <p>{{ errorMessage }}</p>
       </div>
+      } @else if (albums.length === 0) {
+      <!-- 🔹 Estado vacío: Botón crear álbum -->
+      <div class="empty-state">
+        <p class="empty-text">Aún no tienes álbumes creados.</p>
+        <button type="button" class="create-album-btn" (click)="requestCreateAlbum.emit()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Crear álbum</span>
+        </button>
+      </div>    
       } @else {
       <div class="album-list">
         @for (album of albums; track album.id) {

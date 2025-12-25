@@ -15,8 +15,12 @@ import { LoveLoaderService } from '../../../core/services/love-loader.service';
 })
 export class PhotoCardComponent {
   @Input() photo!: Photo;
+  @Input() isSelectionMode = false;
+  @Input() isSelected = false;
+  
   @Output() openPreview = new EventEmitter<Photo>();
   @Output() imageLoaded = new EventEmitter<string>();
+  @Output() toggleSelection = new EventEmitter<string>();
 
   randomRotation = 0;
   cardTransform = 'rotate(0deg)';
@@ -36,7 +40,11 @@ export class PhotoCardComponent {
   }
 
   onClick() {
-    this.openPreview.emit(this.photo);
+    if (this.isSelectionMode) {
+      this.toggleSelection.emit(this.photo.id);
+    } else {
+      this.openPreview.emit(this.photo);
+    }
   }
 
   onImageLoad() {

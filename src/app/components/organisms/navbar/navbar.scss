@@ -173,6 +173,29 @@
 .upload-menu-container {
   position: relative;
   margin-left: auto; /* Empuja a la derecha */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-btn {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #ff4b5c; /* Rojo al hacer hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 75, 92, 0.3);
+  }
 }
 
 .upload-btn {
@@ -187,6 +210,34 @@
   justify-content: center;
   cursor: pointer;
   position: relative;
+  transition: all 0.2s ease;
+
+  &.is-active {
+    background: rgba(255, 105, 135, 0.4);
+    transform: rotate(45deg);
+  }
+
+  &:hover {
+    background: rgba(255, 105, 135, 0.3);
+  }
+}
+
+.batch-actions-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.batch-btn {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   transition: all 0.2s ease;
 
   &.is-active {

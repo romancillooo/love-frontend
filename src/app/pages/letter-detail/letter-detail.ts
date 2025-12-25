@@ -1,18 +1,15 @@
 // src/app/pages/letter-detail/letter-detail.ts
-import { CommonModule, isPlatformBrowser, ViewportScroller } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
-  Inject,
   OnDestroy,
   OnInit,
-  PLATFORM_ID,
 } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, map, switchMap, takeUntil } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { LetterService } from '../../core/services/letter.service';
 import { Letter } from '../../core/models/letter';
 
@@ -23,7 +20,7 @@ import { Letter } from '../../core/models/letter';
   templateUrl: './letter-detail.html',
   styleUrls: ['./letter-detail.scss'],
 })
-export class LetterDetail implements OnInit, AfterViewInit, OnDestroy {
+export class LetterDetail implements OnInit, OnDestroy {
   letter: Letter | undefined;
   displayText = '';
   isLoading = true;
@@ -33,8 +30,6 @@ export class LetterDetail implements OnInit, AfterViewInit, OnDestroy {
   private lastTimestamp = 0;
   private animationId: number | null = null;
   private readonly stepDelay = 45; // ms
-  private navSub?: Subscription;
-  private rafId: number | null = null;
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -42,22 +37,9 @@ export class LetterDetail implements OnInit, AfterViewInit, OnDestroy {
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
     private readonly letterService: LetterService,
-    private readonly scroller: ViewportScroller,
-    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) {}
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // 🔹 Scroll al top también cuando se navega hacia /letter/:id
-      this.navSub = this.router.events
-        .pipe(filter((e) => e instanceof NavigationEnd))
-        .subscribe((e: NavigationEnd) => {
-          if (e.urlAfterRedirects.includes('/letter/')) {
-            this.forceScrollTop();
-          }
-        });
-    }
-
     this.route.paramMap
       .pipe(
         map((params) => params.get('id')),
@@ -88,19 +70,10 @@ export class LetterDetail implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // 🔹 Scroll inicial al renderizar
-      this.forceScrollTop();
-    }
-  }
-
   ngOnDestroy() {
     this.cancelAnimation();
     this.destroy$.next();
     this.destroy$.complete();
-    this.navSub?.unsubscribe();
-    if (this.rafId) cancelAnimationFrame(this.rafId);
   }
 
   // ---------- Animación de escritura ----------
@@ -170,53 +143,5 @@ export class LetterDetail implements OnInit, AfterViewInit, OnDestroy {
 
   goBack() {
     this.router.navigate(['/letters']);
-  }
-
-  // ---------- Scroll robusto al top ----------
-  private forceScrollTop() {
-    try {
-      this.scroller.scrollToPosition([0, 0]);
-    } catch {}
-
-    const tryScroll = (attempt = 0) => {
-      if (attempt > 10) return;
-
-      const doc = document as Document;
-      const candidates: (Window | Element | null)[] = [
-        window,
-        doc.scrollingElement,
-        doc.documentElement,
-        doc.body,
-        doc.querySelector('main'),
-        doc.querySelector('.content'),
-        doc.querySelector('.scroll-container'),
-        doc.querySelector('.app-content'),
-        doc.querySelector('.page'),
-        doc.querySelector('.layout-content'),
-      ];
-
-      candidates.forEach((t) => {
-        if (!t) return;
-        if (t === window) {
-          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        } else {
-          const el = t as HTMLElement;
-          el.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
-          (el as any).scrollTop = 0;
-        }
-      });
-
-      const atTop =
-        (window.scrollY ?? window.pageYOffset ?? 0) === 0 &&
-        (doc.scrollingElement?.scrollTop ?? 0) === 0 &&
-        (doc.documentElement?.scrollTop ?? 0) === 0 &&
-        (doc.body?.scrollTop ?? 0) === 0;
-
-      if (!atTop) {
-        this.rafId = requestAnimationFrame(() => tryScroll(attempt + 1));
-      }
-    };
-
-    setTimeout(() => tryScroll(0), 0);
   }
 }

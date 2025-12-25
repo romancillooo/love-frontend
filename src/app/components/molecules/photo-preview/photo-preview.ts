@@ -1,208 +1,90 @@
-// src/app/components/molecules/photo-preview/photo-preview.ts
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnChanges,
-  OnDestroy,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { firstValueFrom } from 'rxjs';
 import { Photo } from '../../../core/models/photo';
 import { PhotoService } from '../../../core/services/photo.service';
-import { LoveLoaderService } from '../../../core/services/love-loader.service';
-import { LoveLoaderComponent } from '../../shared/love-loader/love-loader';
 
 @Component({
   selector: 'app-photo-preview',
   standalone: true,
-  imports: [CommonModule, MatIconModule, LoveLoaderComponent],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './photo-preview.html',
   styleUrls: ['./photo-preview.scss'],
 })
-export class PhotoPreviewComponent implements OnChanges, OnDestroy {
-  @Input() photo: Photo | null = null;
+export class PhotoPreviewComponent implements OnInit, OnDestroy {
+  @Input({ required: true }) photo!: Photo;
   @Input() hasNext = false;
-  @Input() hasPrevious = false;
-  @Input() index = 0;
-  @Input() total = 0;
-  @Input() showActions = true; // 🔹 Controla si se muestran botones de favorito/eliminar
-  @Input() albumContextId: string | null = null;
-  @Input() albumContextName?: string;
-
+  @Input() hasPrev = false;
+  
   @Output() close = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
-  @Output() previous = new EventEmitter<void>();
-  @Output() requestDelete = new EventEmitter<string>();
-  @Output() toggleFavorite = new EventEmitter<string>(); // ❤️ evento para alternar favorito
-  @Output() requestAddToAlbum = new EventEmitter<{ id: string; label?: string }>();
-  @Output() requestRemoveFromAlbum = new EventEmitter<{
-    photoId: string;
-    albumId: string;
-    albumName?: string;
-  }>();
-  @Input() isRemoveFromAlbumBusy = false;
+  @Output() prev = new EventEmitter<void>();
+  @Output() delete = new EventEmitter<void>();
 
-  isDownloading = false; // 💾 control de estado de descarga
-  showOptionsMenu = false;
+  constructor(private photoService: PhotoService) {}
 
-  private preventScroll = (e: TouchEvent) => e.preventDefault();
+  ngOnInit() {
+    // 🔒 Bloquear scroll del body al abrir
+    document.body.style.overflow = 'hidden';
+  }
 
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly photoService: PhotoService,
-    private readonly loaderService: LoveLoaderService,
-  ) {}
+  ngOnDestroy() {
+    // 🔓 Restaurar scroll al cerrar
+    document.body.style.overflow = '';
+  }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['photo']) {
-      if (this.photo) {
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-        document.addEventListener('touchmove', this.preventScroll, { passive: false });
-      } else {
-        this.restoreScroll();
-      }
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'ArrowRight' && this.hasNext) {
+      this.next.emit();
+    }
+    if (event.key === 'ArrowLeft' && this.hasPrev) {
+      this.prev.emit();
+    }
+    if (event.key === 'Escape') {
+      this.close.emit();
     }
   }
 
   onClose() {
-    this.closeOptionsMenu();
     this.close.emit();
-    this.restoreScroll();
   }
 
-  onNext() {
-    if (this.hasNext) this.next.emit();
-  }
-
-  onPrevious() {
-    if (this.hasPrevious) this.previous.emit();
-  }
-
-  onModalClick(event: MouseEvent) {
-    event.stopPropagation();
-    this.closeOptionsMenu();
-  }
-
-  // 🔹 Abre el modal de confirmación
   onDelete() {
-    if (!this.photo) return;
-    this.closeOptionsMenu();
-    this.requestDelete.emit(this.photo.id);
+    this.delete.emit();
   }
 
-  onAddToAlbum() {
-    if (!this.photo) return;
-    this.closeOptionsMenu();
-    this.requestAddToAlbum.emit({ id: this.photo.id, label: this.photo.description });
-  }
-
-  onRemoveFromAlbum() {
-    if (!this.photo || !this.albumContextId) return;
-    this.closeOptionsMenu();
-    this.requestRemoveFromAlbum.emit({
-      photoId: this.photo.id,
-      albumId: this.albumContextId,
-      albumName: this.albumContextName,
-    });
-  }
-
-  // ❤️ Alternar favorito
-  onToggleFavorite() {
-    if (!this.photo) return;
-    this.toggleFavorite.emit(this.photo.id);
-  }
-
-  // 💾 Descargar foto
-  onDownload() {
-    if (!this.photo || this.isDownloading) return;
-
-    this.closeOptionsMenu();
-
-    this.isDownloading = true;
-    this.loaderService.show('Preparando tu descarga...');
-
-    this.photoService.downloadPhoto(this.photo.id).subscribe({
-      next: (blob) => {
-        // Crear un enlace temporal para descargar
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-
-        // Usar el nombre original o generar uno basado en la fecha
-    const baseName =
-      (this.photo?.description && this.photo.description.replace(/\.(webp|jpg|jpeg|gif|avif|heic|heif|png)$/i, '')) ||
-      `love-memory-${new Date(this.photo!.createdAt).toISOString().split('T')[0]}`;
-    link.download = `${baseName}.png`;
-
-        document.body.appendChild(link);
-        link.click();
-
-        // Limpiar
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        this.isDownloading = false;
-        this.loaderService.hide();
-      },
-      error: (err) => {
-        console.error('❌ Error al descargar:', err);
-        this.isDownloading = false;
-        this.loaderService.hide();
-      },
-    });
-  }
-
-  toggleOptionsMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.showOptionsMenu = !this.showOptionsMenu;
-    this.cdr.detectChanges();
-  }
-
-  closeOptionsMenu() {
-    if (this.showOptionsMenu) {
-      this.showOptionsMenu = false;
-      this.cdr.detectChanges();
+  async downloadImage() {
+    if (!this.photo.id) return;
+    
+    try {
+      // 1. Usar el servicio para descargar el Blob desde el backend
+      const blob = await firstValueFrom(this.photoService.downloadPhoto(this.photo.id));
+      
+      // 2. Crear URL del objeto
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // 3. Crear link temporal y simular click
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      // Usar título o ID para el nombre de archivo
+      const filename = this.photo.description || `recuerdo-${this.photo.id}`;
+      // El backend debería enviar el Content-Type correcto, pero asumimos jpg o usamos el del blob si se pudiera leer
+      link.download = filename.endsWith('.jpg') || filename.endsWith('.png') ? filename : `${filename}.jpg`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // 4. Revocar URL para liberar memoria
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading image via service:', error);
+      // Fallback: intentar abrir la URL directa si falla el servicio
+      if (this.photo.large || this.photo.small) {
+        window.open(this.photo.large || this.photo.small, '_blank');
+      }
     }
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboard(event: KeyboardEvent) {
-    if (!this.photo) return;
-
-    switch (event.key) {
-      case 'ArrowRight':
-        this.onNext();
-        event.preventDefault();
-        break;
-      case 'ArrowLeft':
-        this.onPrevious();
-        event.preventDefault();
-        break;
-      case 'Escape':
-        this.onClose();
-        event.preventDefault();
-        break;
-    }
-  }
-
-  @HostListener('document:click')
-  handleDocumentClick() {
-    this.closeOptionsMenu();
-  }
-
-  ngOnDestroy() {
-    this.restoreScroll();
-  }
-
-  private restoreScroll() {
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-    document.removeEventListener('touchmove', this.preventScroll);
   }
 }

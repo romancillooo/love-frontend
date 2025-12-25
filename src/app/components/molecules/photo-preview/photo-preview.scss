@@ -1,354 +1,215 @@
-/* src/app/components/molecules/photo-preview/photo-preview.scss */
-.preview-backdrop {
+.preview-overlay {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.78);
+  z-index: 2000; /* Por encima de todo, incluido el navbar */
+  /* Copiado de image-uploader.scss para consistencia 🎨 */
+  background: rgba(255, 81, 115, 0.35) !important; /* Aumenté un poco la opacidad para asegurar el tono rosa */
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 2000;
-  padding: 1.25rem;
-  backdrop-filter: blur(4px);
-  animation: fade-in 0.24s ease-out;
+  justify-content: center;
+  animation: fadeIn 0.1s ease-out;
+  padding: 1rem;
+  
+  /* Evitar scroll dentro del overlay */
+  overflow: hidden;
 }
 
-/* ---------- MODAL ---------- */
-.preview-modal {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: clamp(320px, 90vw, 520px);
-  height: clamp(420px, 80vh, 640px);
-  background: rgba(255, 151, 169, 0.18);
-  backdrop-filter: blur(18px) saturate(185%);
-  -webkit-backdrop-filter: blur(18px) saturate(185%);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  padding: 1.25rem;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
-  animation: zoom-in 0.28s ease-out;
-  overflow: visible; // permitir overlays
-}
-
-/* ---------- TOOLBAR ---------- */
-.preview-toolbar {
+/* 🔹 Header de acciones (Top bar) */
+.preview-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
+  z-index: 2001;
+  pointer-events: none; /* Dejar pasar clicks en áreas vacías */
 
-  .preview-meta {
+  .header-actions-right {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.2rem;
-    font-family: var(--ff-display);
-    color: #ffe6ea;
+    align-items: center;
+    gap: 0.75rem;
+    pointer-events: auto; /* Reactivar clicks en botones */
+    margin-left: auto; /* Empujar a la derecha */
+  }
 
-    .preview-date {
-      font-size: 0.95rem;
-      letter-spacing: 0.04em;
-    }
-
-    .preview-count {
-      font-size: 0.8rem;
-      opacity: 0.75;
+  /* Ajuste para mobile */
+  @media (max-width: 600px) {
+    padding: 0.8rem 1rem;
+    .header-actions-right {
+      gap: 0.5rem;
     }
   }
 }
 
-.left-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.icon-btn {
+/* 🔹 Botones de acción (Cerrar, Descargar, Borrar) */
+.action-btn {
+  background: rgba(255, 255, 255, 0.15);
   border: none;
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  color: #fff;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
 
   mat-icon {
-    font-size: 22px;
+    font-size: 24px;
   }
 
-  &:hover {
-    background: rgba(255, 105, 135, 0.35);
-    transform: scale(1.05);
-    box-shadow: 0 8px 18px rgba(255, 105, 135, 0.3);
+  /* Efecto hover solo en Desktop */
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    /* Estilos específicos si se quiere diferenciar */
+    &.delete:hover {
+      background: rgba(255, 75, 92, 0.6); /* Rojo al hover */
+    }
   }
 
   &:active {
     transform: scale(0.95);
   }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 540px) {
-    width: 36px;
-    height: 36px;
-
+  /* Ajuste para mobile */
+  @media (max-width: 600px) {
+    width: 40px;
+    height: 40px;
+    
     mat-icon {
-      font-size: 20px;
+      font-size: 22px;
     }
   }
 }
 
-.favorite-icon-btn.is-favorite {
-  background: rgba(255, 105, 135, 0.55);
-  color: #ff8aa3;
-}
-
-/* ---------- ICON BUTTON ---------- */
-/* ---------- CONTENT WRAPPER (fix overflow) ---------- */
-.preview-content {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 0; // 🔥 importante para evitar stretch en flex
-  padding: 0 2rem;
-}
-
-/* ---------- IMAGE FRAME ---------- */
-.preview-frame {
-  margin: 0;
+.image-container {
   position: relative;
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
   max-height: 100%;
   display: flex;
-  gap: 1rem;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-
-  img {
-    max-width: 90%;
-    max-height: 85%; // 🔥 margen estético
-    object-fit: contain; // 🔥 mantiene proporción, no se sale
-    border-radius: 18px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-    display: block;
-  }
-
-  figcaption {
-    width: 100%;
-    max-width: 90%;
-    padding-top: 0.5rem;
-  }
-
-  .preview-description {
-    font-size: 1rem;
-    color: #fff;
-    font-style: italic;
-    text-align: center;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
-    margin: 0;
-  }
+  animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* ---------- NAV BUTTONS ---------- */
+.preview-image {
+  max-width: 100%;
+  max-height: 90vh; /* Dejar espacio vertical */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+
+/* 🔹 Navegación */
 .nav-btn {
-  border: none;
-  background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  width: 48px;
-  height: 48px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
-  z-index: 2;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-50%) scale(1.05);
-    background: rgba(255, 105, 135, 0.8);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  &.prev {
-    left: 0.3rem;
-  }
-
-  &.next {
-    right: 0.3rem;
-  }
-}
-
-.options-wrapper {
-  position: relative;
-
-  .options-menu {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: -2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: 0.55rem;
-    min-width: 150px;
-    border-radius: 12px;
-    background: rgba(255, 151, 169, 0.24);
-    backdrop-filter: blur(16px) saturate(185%);
-    -webkit-backdrop-filter: blur(16px) saturate(185%);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    box-shadow: 0 20px 34px rgba(255, 105, 135, 0.28);
-    z-index: 20;
-    opacity: 0;
-    transform: translateY(6px);
-    animation: options-fade-in 0.2s ease-out forwards;
-
-    button {
-      border: none;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      font-family: var(--ff-display);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.45rem 0.55rem;
-      border-radius: 10px;
-      cursor: pointer;
-      transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-
-      mat-icon {
-        font-size: 20px;
-      }
-
-      &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateY(-1px);
-      }
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
-  }
-}
-
-@keyframes options-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ---------- FOOTER ---------- */
-.preview-footer {
-  display: flex;
-  justify-content: center;
-}
-
-.close-cta {
+  background: rgba(255, 255, 255, 0.15);
   border: none;
-  background: linear-gradient(135deg, var(--salmon-500), var(--rose-400));
-  color: #fff;
-  font-family: var(--ff-display);
-  font-weight: 600;
-  padding: 0.75rem 1.6rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 32px rgba(255, 105, 135, 0.35);
-  }
-}
-
-.preview-loader-overlay {
-  position: absolute;
-  inset: 0;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 24px;
-  z-index: 15;
-}
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s ease;
+  z-index: 10;
+  backdrop-filter: blur(4px);
 
-/* ---------- MOBILE ---------- */
-@media (max-width: 540px) {
-  .preview-modal {
-    width: calc(100vw - 3rem);
-    max-height: 85vh; // 🔥 Evita que se vea "full"
-    height: auto; // 🔥 Para que se ajuste solo al contenido
-    padding: 1rem;
-    border-radius: 20px;
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
   }
 
-  .preview-content {
-    padding: 0.5rem 1rem;
+  /* Desktop: Botones a los lados del overlay */
+  &.prev {
+    left: 2rem;
   }
 
-  .nav-btn {
-    width: 42px;
-    height: 42px;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  &.next {
+    right: 2rem;
+  }
 
-    &:hover:not(:disabled) {
-      transform: translateY(-50%) scale(1.05);
+  /* Efecto hover solo en dispositivos que soporten hover (Desktop) */
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-50%) scale(1.1);
     }
   }
 
-  .nav-btn.prev,
-  .nav-btn.next {
-    position: absolute;
-    margin: 0;
-  }
-
-  .nav-btn.prev {
-    left: 0.2rem;
-  }
-
-  .nav-btn.next {
-    right: 0.2rem;
-  }
-
-  .preview-frame img {
-    max-height: 70vh; // Ajuste dinámico
+  &:active {
+    transform: translateY(-50%) scale(0.95);
   }
 }
+
+/* 🔹 Mobile: Botones abajo y "fuera" del recuerdo */
+@media (max-width: 768px) {
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    top: auto;         /* Quitar centrado vertical */
+    bottom: 50px;      /* Ajuste fino */
+    transform: none;   
+    margin: 0;
+    
+    /* Reset active transform for mobile logic specific */
+    &:active {
+      transform: scale(0.9); 
+      background: rgba(255, 255, 255, 0.4);
+    }
+    
+    &.prev {
+      left: 20px;
+    }
+    
+    &.next {
+      right: 20px;
+    }
+  }
+
+  /* REDUCIR la altura máxima de la imagen en móvil para dejar espacio a los botones */
+  .preview-image {
+    max-height: 70vh; 
+    margin-bottom: 0; 
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1); 
+  }
+}
+

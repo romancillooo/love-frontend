@@ -48,6 +48,55 @@ export class AuthService {
     return resolveApiUrl();
   }
 
+  /**
+   * Obtiene el rol del usuario desde el token JWT
+   */
+  getUserRole(): string | null {
+    const token = this.token;
+    if (!token) {
+      console.log('🔍 No hay token disponible');
+      return null;
+    }
+
+    try {
+      // JWT tiene formato: header.payload.signature
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.log('🔍 Token no tiene formato JWT válido');
+        return null;
+      }
+
+      // Decodificar el payload (base64url)
+      const payload = parts[1];
+      // Reemplazar caracteres base64url por base64 estándar
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      // Agregar padding si es necesario
+      const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+      const decoded = atob(padded);
+      const parsed = JSON.parse(decoded);
+
+      // 🔹 Debug: mostrar el payload completo
+      console.log('🔍 Payload del JWT:', parsed);
+      
+      // Intentar diferentes nombres de propiedad para el rol
+      const role = parsed.role || parsed.roles || parsed.userRole || parsed.user?.role || null;
+      
+      console.log('🔍 Rol encontrado:', role);
+      
+      return role;
+    } catch (error) {
+      console.error('❌ Error decodificando token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Verifica si el usuario tiene el rol especificado
+   */
+  hasRole(role: string): boolean {
+    return this.getUserRole() === role;
+  }
+
   private persistToken(token: string): void {
     this.cachedToken = token;
     if (!this.hasStorage()) return;

@@ -19,6 +19,7 @@ export class SelectAlbumComponent implements OnInit, OnDestroy {
   @Input() isBusy = false;
   @Output() close = new EventEmitter<void>();
   @Output() confirm = new EventEmitter<{ toAdd: string[]; toRemove: string[] }>();
+  @Output() requestCreateAlbum = new EventEmitter<void>();
 
   albums: Album[] = [];
   selectedAlbumIds = new Set<string>();
@@ -31,26 +32,7 @@ export class SelectAlbumComponent implements OnInit, OnDestroy {
   constructor(private readonly albumService: AlbumService, private readonly cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.subscription = this.albumService.getAllAlbums().subscribe({
-      next: (albums) => {
-        this.albums = albums;
-        this.isLoading = false;
-        this.errorMessage = albums.length === 0 ? 'Aún no tienes álbumes creados.' : '';
-
-        // 🔹 Pre-seleccionar álbumes que ya contienen esta foto
-        if (this.photoId) {
-          this.preselectAlbums(this.photoId);
-        }
-
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('❌ Error loading albums:', err);
-        this.errorMessage = 'No pude cargar tus álbumes. Inténtalo más tarde.';
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.loadAlbums();
   }
 
   ngOnDestroy() {
@@ -112,6 +94,36 @@ export class SelectAlbumComponent implements OnInit, OnDestroy {
         this.selectedAlbumIds.add(album.id);
         this.initialAlbumIds.add(album.id); // 🔹 Guardar selección inicial
       }
+    });
+  }
+
+  private loadAlbums() {
+    this.isLoading = true;
+    this.subscription?.unsubscribe(); // Cancel previous if any
+    this.subscription = this.albumService.getAllAlbums(true).subscribe({
+      next: (albums) => {
+        this.albums = albums;
+        this.isLoading = false;
+        this.errorMessage = albums.length === 0 ? 'Aún no tienes álbumes creados.' : '';
+        
+        // 🔹 Pre-seleccionar álbumes que ya contienen esta foto
+        if (this.photoId) {
+          this.preselectAlbums(this.photoId);
+        }
+
+        this.cdr.detectChanges();
+        
+        // Mantener selección actual si es un recarga
+        // (La lógica simple de preselect añade al set, así que 'funciona' para mantener 
+        //  pero idealmente si es recarga solo añadiríamos nuevos si cambiara algo, 
+        //  aquí simplificamos confiando en el Set).
+      },
+      error: (err) => {
+        console.error('❌ Error loading albums:', err);
+        this.errorMessage = 'No pude cargar tus álbumes. Inténtalo más tarde.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 }

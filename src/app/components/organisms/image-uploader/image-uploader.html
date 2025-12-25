@@ -56,18 +56,8 @@
 </div>
 
 <!-- Preview modal (muestra imagen seleccionada) -->
-<app-photo-preview
-  *ngIf="activePhoto"
-  [photo]="activePhoto"
-  [index]="activeIndex ?? 0"
-  [total]="files.length"
-  [hasNext]="activeIndex !== null && activeIndex < files.length - 1"
-  [hasPrevious]="activeIndex !== null && activeIndex > 0"
-  [showActions]="false"
-  (next)="nextPhoto()"
-  (previous)="previousPhoto()"
-  (close)="closePreview()"
-></app-photo-preview>
+<!-- Preview modal (Deshabilitado temporalmente) -->
+<!-- <app-photo-preview *ngIf="activePhoto" ... ></app-photo-preview> -->
 
 <!-- 💕 Loader global mientras se suben las imágenes -->
 <app-love-loader

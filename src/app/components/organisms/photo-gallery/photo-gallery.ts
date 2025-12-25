@@ -1,10 +1,9 @@
 // src/app/components/organisms/photo-gallery/photo-gallery.ts
-import { CommonModule, isPlatformBrowser, ViewportScroller } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { asyncScheduler, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, filter, finalize, observeOn, takeUntil } from 'rxjs/operators';
+import { asyncScheduler, forkJoin, Observable, of, Subject } from 'rxjs';
+import { catchError, finalize, observeOn, takeUntil } from 'rxjs/operators';
 
 import { Photo } from '../../../core/models/photo';
 import { PhotoService } from '../../../core/services/photo.service';
@@ -60,6 +59,15 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   confirmRemoveFromAlbumVisible = false;
   isAddToAlbumLoading = false;
   isRemoveFromAlbumLoading = false;
+  
+  // 🔹 Selección múltiple
+  isSelectionMode = false;
+  selectedPhotoIds = new Set<string>();
+  confirmBatchDeleteVisible = false;
+
+  // 🔹 Timeline (Scrollbar de fechas)
+  timelineData: { year: number; months: { label: string; anchorId: string }[] }[] = [];
+  showTimeline = true;
 
   private readonly globalLoadedPhotoIds = new Set<string>();
   isSkeletonVisible = true;
@@ -68,16 +76,12 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoaderVisible = false;
   loaderMessage = '';
 
-  private navSub?: Subscription;
-  private rafId: number | null = null;
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly photoService: PhotoService,
     private readonly albumService: AlbumService,
     @Inject(PLATFORM_ID) private readonly platformId: Object,
-    private readonly router: Router,
-    private readonly scroller: ViewportScroller,
     private readonly cdr: ChangeDetectorRef,
   ) {}
 
@@ -110,27 +114,44 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.bootstrapPhotos();
       });
 
-    // 🔹 Scroll al volver a /photos
-    this.navSub = this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe((e: NavigationEnd) => {
-        if (e.urlAfterRedirects.includes('/photos')) {
-          this.forceScrollTop();
+    // 🔹 Suscripción al modo de selección desde el Navbar
+    this.photoService.selectionMode$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isActive) => {
+        this.isSelectionMode = isActive;
+        if (!isActive) {
+          this.selectedPhotoIds.clear(); // Limpiar si se desactiva
+          this.photoService.updateSelectionCount(0);
         }
+        this.cdr.detectChanges();
+      });
+
+      // 🔹 Suscripción a la solicitud de borrado desde el Navbar
+      this.photoService.deleteRequest$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.confirmBatchDelete();
+        });
+    // 🔹 Suscripción a la solicitud de agregar a álbum en lote desde el Navbar
+    this.photoService.batchAddToAlbumRequest$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.selectedPhotoIds.size === 0) return;
+        this.photoIdForAlbum = null; // null indica modo batch
+        this.photoLabelForAlbum = `${this.selectedPhotoIds.size} recuerdos`;
+        this.showSelectAlbumModal = true;
+        this.cdr.detectChanges();
       });
   }
 
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
-    this.forceScrollTop();
     this.bootstrapPhotos();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.navSub?.unsubscribe();
-    if (this.rafId) cancelAnimationFrame(this.rafId);
   }
 
   // ========================================================
@@ -212,7 +233,6 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
       ? this.albums.find((album) => album.id === this.currentAlbumId)?.name
       : undefined;
     this.updateFilteredPhotos();
-    if (isPlatformBrowser(this.platformId)) this.forceScrollTop();
     this.cdr.detectChanges();
   }
 
@@ -241,6 +261,7 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   onRequestPhotoDelete(photoId: string) {
     this.photoPendingDeletion = photoId;
     this.confirmPhotoDeleteVisible = true;
+    this.cdr.detectChanges();
   }
 
   isAlbumSelectedWithoutPhotos(): boolean {
@@ -421,6 +442,72 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // ========================================================
+  // 🔹 Selección Múltiple y Borrado en Lote
+  // ========================================================
+  toggleSelectionMode() {
+    // Si lo llamamos localmente (botón cancelar), actualizamos el servicio
+    const newState = !this.isSelectionMode;
+    this.photoService.setSelectionMode(newState);
+  }
+
+  onPhotoSelect(photoId: string) {
+    if (this.selectedPhotoIds.has(photoId)) {
+      this.selectedPhotoIds.delete(photoId);
+    } else {
+      this.selectedPhotoIds.add(photoId);
+    }
+    this.photoService.updateSelectionCount(this.selectedPhotoIds.size);
+    this.cdr.detectChanges();
+  }
+
+  confirmBatchDelete() {
+    if (this.selectedPhotoIds.size === 0) return;
+    this.confirmBatchDeleteVisible = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelBatchDelete() {
+    this.confirmBatchDeleteVisible = false;
+    this.cdr.detectChanges();
+  }
+
+  executeBatchDelete() {
+    const idsToDelete = Array.from(this.selectedPhotoIds);
+    if (idsToDelete.length === 0) {
+      this.cancelBatchDelete();
+      return;
+    }
+
+    this.isLoaderVisible = true;
+    this.loaderMessage = `Eliminando ${idsToDelete.length} recuerdos...`;
+    this.confirmBatchDeleteVisible = false;
+    this.cdr.detectChanges();
+
+    this.photoService.deletePhotosBatch(idsToDelete).subscribe({
+      next: (res) => {
+        console.log('✅ Batch delete success:', res);
+        
+        // Actualizar UI localmente para feedback inmediato
+        this.allPhotos = this.allPhotos.filter(p => !this.selectedPhotoIds.has(p.id));
+        this.updateFilteredPhotos();
+        
+        // Limpiar selección y estado (vía servicio)
+        this.photoService.setSelectionMode(false);
+        
+        this.isLoaderVisible = false;
+        this.loaderMessage = '';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Error batch delete:', err);
+        this.isLoaderVisible = false;
+        this.loaderMessage = 'Error al eliminar fotos.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   onRequestAddToAlbum(payload: { id: string; label?: string }) {
     this.photoIdForAlbum = payload.id;
     this.photoLabelForAlbum = payload.label;
@@ -460,6 +547,75 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedPhoto = null;
     this.selectedIndex = -1;
     this.evaluateSkeletonState();
+    this.buildTimeline();
+  }
+
+  private buildTimeline() {
+    this.timelineData = [];
+    if (this.photos.length === 0) return;
+
+    // Solo mostrar timeline si hay suficientes fotos y no estamos en favoritos (aunque en favoritos también podría ser útil)
+    // Para simplificar, lo mostramos siempre que haya fotos.
+    
+    const groups = new Map<number, Set<number>>(); // Año -> Set de Meses
+    const firstPhotoIds = new Map<string, string>(); // "Yr-Mo" -> PhotoId
+
+    this.photos.forEach((photo) => {
+      const date = new Date(photo.createdAt);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const key = `${year}-${month}`;
+
+      if (!groups.has(year)) {
+        groups.set(year, new Set());
+      }
+      
+      const months = groups.get(year)!;
+      if (!months.has(month)) {
+        months.add(month);
+        // Guardamos el ID de la primera foto de ese mes como ancla
+        firstPhotoIds.set(key, photo.id);
+      }
+    });
+
+    // Construir estructura de datos ordenada
+    // Los años ya deberían venir ordenados si las fotos están ordenadas, pero aseguramos desc
+    const sortedYears = Array.from(groups.keys()).sort((a, b) => b - a);
+
+    this.timelineData = sortedYears.map(year => {
+      const monthsSet = groups.get(year)!;
+      const sortedMonths = Array.from(monthsSet).sort((a, b) => b - a); // Dic -> Ene (Descendente)
+      
+      const months = sortedMonths.map(month => {
+        const key = `${year}-${month}`;
+        // Obtener nombre del mes
+        const date = new Date(year, month, 1);
+        const label = date.toLocaleString('es-ES', { month: 'short' }); // "ene", "feb"...
+        // Capitalizar primera letra
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        
+        return {
+          label: formattedLabel,
+          anchorId: firstPhotoIds.get(key)!
+        };
+      });
+
+      return { year, months };
+    });
+  }
+
+  scrollToAnchor(photoId: string) {
+    // 🔹 Buscar el elemento en el DOM
+    // El ID en el DOM será el ID de la foto directamente (ya que usamos photo.id en photo-card)
+    // Pero necesitamos asegurarnos de que el photo-card tenga el id asignado o un wrapper.
+    // Actualmente `app-photo-card` tiene `[photo]="photo"`.
+    // En el template `gallery-item` envuelve `app-photo-card`. Le pondremos ID al `gallery-item`.
+    
+    // Fallback: buscar por ID standard
+    const element = document.getElementById('photo-' + photoId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   private evaluateSkeletonState() {
@@ -513,6 +669,42 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.albumBeingEdited = null;
     this.confirmDeleteVisible = false;
     this.cdr.detectChanges();
+  }
+
+  onAlbumCreate(payload: { name: string; description: string }) {
+    this.isLoaderVisible = true;
+    this.loaderMessage = 'Creando álbum...';
+
+    this.albumService.createAlbum(payload)
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (newAlbum) => {
+          this.closeAlbumEditor(); // Cierra el creador
+          
+          // 🔹 Verificar si había fotos pendientes para agregar
+          const hasPendingPhotos = this.photoIdForAlbum || this.selectedPhotoIds.size > 0;
+          
+          if (hasPendingPhotos) {
+            // Reutilizamos la lógica de agregar a álbum
+            this.addPhotoToSelectedAlbums({
+              toAdd: [newAlbum.id],
+              toRemove: []
+            });
+          } else {
+            this.isLoaderVisible = false;
+            this.loaderMessage = '';
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error al crear álbum:', err);
+          this.isLoaderVisible = false;
+          this.loaderMessage = '';
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   onAlbumUpdate(payload: { id: string; name: string; description: string }) {
@@ -607,19 +799,17 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loaderMessage = 'Eliminando recuerdo...';
     this.confirmPhotoDeleteVisible = false;
     this.photoPendingDeletion = null;
+    this.cdr.detectChanges(); // 🔹 Update UI to remove dialog and show loader
     this.onDeletePhoto(photoId);
   }
 
   cancelPhotoRemoval() {
     this.confirmPhotoDeleteVisible = false;
     this.photoPendingDeletion = null;
+    this.cdr.detectChanges(); // 🔹 Update UI to remove dialog
   }
 
   addPhotoToSelectedAlbums(payload: { toAdd: string[]; toRemove: string[] }) {
-    if (!this.photoIdForAlbum) {
-      return;
-    }
-
     const { toAdd, toRemove } = payload;
     const totalOperations = toAdd.length + toRemove.length;
 
@@ -628,39 +818,54 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // 🔹 Mostrar mensaje apropiado
+    // 🔹 Determinar si es una operación batch o individual
+    const isBatch = !this.photoIdForAlbum && this.selectedPhotoIds.size > 0;
+    const targetPhotoIds = isBatch ? Array.from(this.selectedPhotoIds) : (this.photoIdForAlbum ? [this.photoIdForAlbum] : []);
+
+    if (targetPhotoIds.length === 0) {
+      this.cancelAlbumSelection();
+      return;
+    }
+
+    // 🔹 Mensaje de carga
     let message = '';
-    if (toAdd.length > 0 && toRemove.length > 0) {
-      message = 'Actualizando álbumes...';
-    } else if (toAdd.length > 0) {
-      message = toAdd.length > 1 ? 'Agregando a tus álbumes...' : 'Agregando al álbum...';
+    if (isBatch) {
+      message = `Agregando ${targetPhotoIds.length} recuerdos a tus álbumes...`;
     } else {
-      message = toRemove.length > 1 ? 'Quitando de tus álbumes...' : 'Quitando del álbum...';
+      if (toAdd.length > 0 && toRemove.length > 0) {
+        message = 'Actualizando álbumes...';
+      } else if (toAdd.length > 0) {
+        message = toAdd.length > 1 ? 'Agregando a tus álbumes...' : 'Agregando al álbum...';
+      } else {
+        message = toRemove.length > 1 ? 'Quitando de tus álbumes...' : 'Quitando del álbum...';
+      }
     }
 
     this.isLoaderVisible = true;
     this.loaderMessage = message;
     this.isAddToAlbumLoading = true;
-
-    const photoId = this.photoIdForAlbum;
+    
+    // 🔹 Construir array de operaciones
     const operations: Observable<any>[] = [];
 
-    // 🔹 Agregar a álbumes
-    if (toAdd.length > 0) {
-      operations.push(this.albumService.addPhotoToAlbums(photoId, toAdd));
-    }
-
-    // 🔹 Eliminar de álbumes
-    toRemove.forEach((albumId) => {
-      operations.push(this.albumService.removePhotoFromAlbum(albumId, photoId));
+    // Iterar sobre CADA foto objetivo (1 o muchas)
+    targetPhotoIds.forEach(photoId => {
+      // 1. Agregar a álbumes
+      if (toAdd.length > 0) {
+        operations.push(this.albumService.addPhotoToAlbums(photoId, toAdd));
+      }
+      // 2. Eliminar de álbumes (en batch generalmente toRemove vendrá vacío, pero lo soportamos)
+      toRemove.forEach((albumId) => {
+        operations.push(this.albumService.removePhotoFromAlbum(albumId, photoId));
+      });
     });
 
-    // 🔹 Ejecutar todas las operaciones en paralelo
     if (operations.length === 0) {
       this.cancelAlbumSelection();
       return;
     }
 
+    // 🔹 Ejecutar todo en paralelo
     forkJoin(operations)
       .pipe(
         takeUntil(this.destroy$),
@@ -676,7 +881,11 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.showSelectAlbumModal = false;
           this.photoIdForAlbum = null;
           this.photoLabelForAlbum = undefined;
-          this.forceScrollTop();
+
+          // Si fue batch, limpiamos la selección y salimos del modo selección
+          if (isBatch) {
+             this.photoService.setSelectionMode(false);
+          }
         },
         error: (err: any) => {
           console.error('❌ Error al actualizar álbumes:', err);
@@ -689,6 +898,13 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.photoIdForAlbum = null;
     this.photoLabelForAlbum = undefined;
     this.isAddToAlbumLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  switchToCreateAlbum() {
+    this.showSelectAlbumModal = false; // Cierra modal de selección
+    this.showAlbumCreator = true;      // Abre modal de creación
+    this.albumBeingEdited = null;      // Modo creación
     this.cdr.detectChanges();
   }
 
@@ -742,32 +958,5 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // ========================================================
-  // 🔹 Scroll al top
-  // ========================================================
-  private forceScrollTop() {
-    try {
-      this.scroller.scrollToPosition([0, 0]);
-    } catch {}
-
-    const tryScroll = (attempt = 0) => {
-      if (attempt > 10) return;
-      const doc = document as Document;
-      const candidates: (Window | Element | null)[] = [
-        window,
-        doc.scrollingElement,
-        doc.documentElement,
-        doc.body,
-      ];
-      candidates.forEach((t) => {
-        if (!t) return;
-        if (t === window) window.scrollTo({ top: 0 });
-        else (t as HTMLElement).scrollTo?.({ top: 0 });
-      });
-      if ((window.scrollY ?? 0) !== 0 || (doc.scrollingElement?.scrollTop ?? 0) !== 0) {
-        this.rafId = requestAnimationFrame(() => tryScroll(attempt + 1));
-      }
-    };
-    setTimeout(() => tryScroll(0), 0);
-  }
 }
+

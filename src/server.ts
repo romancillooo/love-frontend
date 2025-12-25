@@ -5,10 +5,11 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import lettersData from '../public/assets/data/letters.json';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const lettersData = loadLettersData();
 
 const angularApp = new AngularNodeAppEngine();
 const app = express();
@@ -34,9 +35,7 @@ app.use((req, res, next) => {
       render: {
         getPrerenderParams: (route: string) => {
           if (route === '/letter/:id') {
-            return (lettersData as any[]).map((letter) => ({
-              id: letter.id.toString(),
-            }));
+            return lettersData.map((letter) => ({ id: letter.id.toString() }));
           }
           return [];
         },
@@ -61,3 +60,20 @@ if (isMainModule(import.meta.url)) {
  * Request handler for Angular CLI or Firebase Functions.
  */
 export const reqHandler = createNodeRequestHandler(app);
+
+type LetterLike = { id: string | number };
+
+function loadLettersData(): LetterLike[] {
+  const lettersFile = join(import.meta.dirname, '../public/assets/data/letters.json');
+
+  try {
+    const file = readFileSync(lettersFile, 'utf-8');
+    return JSON.parse(file) as LetterLike[];
+  } catch (error) {
+    console.warn(
+      `[letters prerender] No se encontró ${lettersFile}. Se continuará sin prerender dinámico.`,
+      error instanceof Error ? error.message : error,
+    );
+    return [];
+  }
+}

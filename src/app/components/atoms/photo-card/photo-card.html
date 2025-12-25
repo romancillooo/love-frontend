@@ -4,7 +4,9 @@
   role="button"
   (click)="onClick()"
   (keyup.enter)="onClick()"
-  [style.transform]="'rotate(' + randomRotation + 'deg)'"
+  [style.transform]="!isSelectionMode ? 'rotate(' + randomRotation + 'deg)' : 'none'"
+  [class.selection-mode]="isSelectionMode"
+  [class.is-selected]="isSelected"
   [attr.aria-label]="photo.description || 'Abrir foto'"
 >
   <figure class="photo-frame">
@@ -21,8 +23,13 @@
     </button>
 
     <!-- ❤️ Indicador de favorito -->
-    <div class="favorite-badge" *ngIf="photo.isFavorite">
+    <div class="favorite-badge" *ngIf="photo.isFavorite && !isSelected">
       <mat-icon>favorite</mat-icon>
+    </div>
+
+    <!-- ✅ Overlay de selección -->
+    <div class="selection-overlay" *ngIf="isSelected">
+      <mat-icon>check_circle</mat-icon>
     </div>
 
     <img
@@ -32,7 +39,7 @@
       (load)="onImageLoad()"
     />
     <figcaption>
-      <span class="photo-date">{{ photo.createdAt | date: 'd MMM y' }}</span>
+      <span class="photo-date">{{ photo.createdAt | date: 'd MMM y • h:mm a' }}</span>
     </figcaption>
   </figure>
 </article>

@@ -1,9 +1,9 @@
 // src/app/components/organisms/letter-menu/letter-menu.ts
-import { CommonModule, isPlatformBrowser, ViewportScroller } from '@angular/common';
-import { AfterViewInit, Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
-import { catchError, filter, map, shareReplay, tap } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { LetterService } from '../../../core/services/letter.service';
 import { Letter } from '../../../core/models/letter';
 
@@ -14,19 +14,44 @@ import { Letter } from '../../../core/models/letter';
   templateUrl: './letter-menu.html',
   styleUrls: ['./letter-menu.scss'],
 })
-export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
-  readonly letters$: Observable<Array<Letter & { preview: string }>>;
+export class LettersMenu implements OnInit, OnDestroy {
+  letters$: Observable<Array<Letter & { preview: string }>>;
   loadError = '';
-  private navSub?: Subscription;
-  private rafId: number | null = null;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly router: Router,
     private readonly letterService: LetterService,
-    private readonly scroller: ViewportScroller,
-    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) {
-    this.letters$ = this.letterService.getAllLetters().pipe(
+    this.letters$ = this.createLettersStream();
+  }
+
+  ngOnInit() {
+    this.letterService.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.letters$ = this.createLettersStream(true);
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  openLetter(id: string) {
+    this.router.navigate(['/letter', id]);
+  }
+
+  private resolveError(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return 'No pude cargar las cartas, intenta más tarde.';
+  }
+
+  private createLettersStream(
+    forceRefresh = false,
+  ): Observable<Array<Letter & { preview: string }>> {
+    return this.letterService.getAllLetters(forceRefresh).pipe(
       map((letters) =>
         letters.map((letter) => ({
           ...letter,
@@ -42,90 +67,5 @@ export class LettersMenu implements OnInit, AfterViewInit, OnDestroy {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-  }
-
-  ngOnInit() {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    // 🔹 Scroll al top también cuando se navega hacia /letters
-    this.navSub = this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe((e: NavigationEnd) => {
-        if (e.urlAfterRedirects.includes('/letters')) {
-          this.forceScrollTop();
-        }
-      });
-  }
-
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // 🔹 Scroll inicial al renderizar el componente
-      this.forceScrollTop();
-    }
-  }
-
-  ngOnDestroy() {
-    this.navSub?.unsubscribe();
-    if (this.rafId) cancelAnimationFrame(this.rafId);
-  }
-
-  openLetter(id: string) {
-    this.router.navigate(['/letter', id]);
-  }
-
-  private resolveError(error: unknown): string {
-    if (error instanceof Error) {
-      return error.message;
-    }
-    return 'No pude cargar las cartas, intenta más tarde.';
-  }
-
-  // ---------- Scroll robusto al top ----------
-  private forceScrollTop() {
-    try {
-      this.scroller.scrollToPosition([0, 0]);
-    } catch {}
-
-    const tryScroll = (attempt = 0) => {
-      if (attempt > 10) return;
-
-      const doc = document as Document;
-      const candidates: (Window | Element | null)[] = [
-        window,
-        doc.scrollingElement,
-        doc.documentElement,
-        doc.body,
-        doc.querySelector('main'),
-        doc.querySelector('.content'),
-        doc.querySelector('.scroll-container'),
-        doc.querySelector('.app-content'),
-        doc.querySelector('.page'),
-        doc.querySelector('.layout-content'),
-      ];
-
-      candidates.forEach((t) => {
-        if (!t) return;
-        if (t === window) {
-          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        } else {
-          const el = t as HTMLElement;
-          el.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
-          (el as any).scrollTop = 0;
-        }
-      });
-
-      const atTop =
-        (window.scrollY ?? window.pageYOffset ?? 0) === 0 &&
-        (doc.scrollingElement?.scrollTop ?? 0) === 0 &&
-        (doc.documentElement?.scrollTop ?? 0) === 0 &&
-        (doc.body?.scrollTop ?? 0) === 0;
-
-      if (!atTop) {
-        this.rafId = requestAnimationFrame(() => tryScroll(attempt + 1));
-      }
-    };
-
-    // 🔹 Pequeño defer para esperar el render
-    setTimeout(() => tryScroll(0), 0);
   }
 }

@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 import { buildApiUrl } from '../api.config';
 import { Letter } from '../models/letter';
 
@@ -98,7 +98,28 @@ export class LetterService {
   }
 
   // ========================================================
-  // 🔄 4. Limpiar caché y notificar refresh
+  // ✍️ 4. Crear una nueva carta
+  // ========================================================
+  createLetter(letterData: {
+    title: string;
+    icon: string;
+    content: string;
+  }): Observable<Letter> {
+    return this.http.post<LetterDTO>(this.lettersUrl, letterData).pipe(
+      map((dto) => this.mapLetter(dto)),
+      tap(() => {
+        // Limpiar caché después de crear
+        this.clearCacheAndRefresh();
+      }),
+      catchError((err) => {
+        console.error('❌ Error al crear carta:', err);
+        throw err;
+      }),
+    );
+  }
+
+  // ========================================================
+  // 🔄 5. Limpiar caché y notificar refresh
   // ========================================================
   clearCacheAndRefresh() {
     this.letters$ = undefined;
@@ -106,7 +127,7 @@ export class LetterService {
   }
 
   // ========================================================
-  // 🗺️ 5. Mapear datos desde backend
+  // 🗺️ 6. Mapear datos desde backend
   // ========================================================
   private mapLetter(dto: LetterDTO): Letter {
     return {

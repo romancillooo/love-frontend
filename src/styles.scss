@@ -12,32 +12,32 @@ html {
       density: 0,
     )
   );
+}
 
+html,
+body {
   height: 100%;
-  width: 100%; /* ✅ asegura ancho exacto sin depender de viewport */
-  max-width: 100%; /* ✅ evita que se extienda más que la pantalla real */
-  overflow-x: hidden; /* ✅ bloquea el pixel fantasma en iOS/Safari y macOS */
+  margin: 0;
+  font-family: var(--ff-display, 'Raleway', sans-serif);
+  background-color: transparent; /* 🔹 Dejar ver los corazones de fondo */
+  color: var(--mat-sys-on-surface, #000);
 }
 
 body {
-  height: 100%;
-  width: 100%; /* ✅ mucho mejor que 100vw */
-  max-width: 100%; /* ✅ evita offset horizontal */
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden !important; /* ⚔️ fuerza eliminación de overflow lateral */
-
-  color-scheme: light;
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-  font-family: var(--ff-display);
+  display: flex;
+  flex-direction: column;
 }
 
-/* ✅ ESTE FIX EVITA QUE ALGÚN CONTENEDOR CON width: 100vw SEPARE TODO EL LAYOUT */
+/* 🔹 Bloqueo de scroll cuando el menú móvil está abierto */
+body.menu-open {
+  overflow: hidden !important;
+  height: 100vh;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
 * {
   box-sizing: border-box;
-  max-width: 100vw; /* 🔥 clave: evita que elementos internos se salgan hacia la derecha */
 }
 
 /* Variables globales */
@@ -112,7 +112,6 @@ body {
   }
   to {
     transform: scale(1);
-    opacity: 1;
   }
 }
 

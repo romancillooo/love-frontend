@@ -1,0 +1,99 @@
+<!-- src/app/components/organisms/letter-creator/letter-creator.html -->
+<div class="letter-creator-backdrop" (click)="onClose()">
+  <div class="letter-creator-modal" (click)="$event.stopPropagation()">
+    <!-- 🔹 Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">mail</mat-icon>
+        <h2 class="modal-title">Crear Nueva Carta</h2>
+      </div>
+      <button class="close-btn" type="button" (click)="onClose()" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- 🔹 Form -->
+    <form class="modal-body" (ngSubmit)="onSubmit()">
+      <!-- Título de la carta -->
+      <div class="form-group">
+        <label for="letterTitle" class="form-label">
+          <mat-icon>title</mat-icon>
+          Título de la Carta
+        </label>
+        <input
+          id="letterTitle"
+          type="text"
+          class="form-input"
+          [(ngModel)]="letterTitle"
+          name="letterTitle"
+          placeholder="Ej: Mi amor eterno"
+          maxlength="100"
+          required
+          [disabled]="isSubmitting"
+        />
+        <small class="form-hint">{{ letterTitle.length }}/100 caracteres</small>
+      </div>
+
+      <!-- Icono -->
+      <div class="form-group">
+        <label for="letterIcon" class="form-label">
+          <mat-icon>emoji_emotions</mat-icon>
+          Icono (emoji o texto)
+        </label>
+        <input
+          id="letterIcon"
+          type="text"
+          class="form-input"
+          [(ngModel)]="letterIcon"
+          name="letterIcon"
+          placeholder="Ej: 💌 o ❤️"
+          maxlength="10"
+          required
+          [disabled]="isSubmitting"
+        />
+        <small class="form-hint">{{ letterIcon.length }}/10 caracteres</small>
+      </div>
+
+      <!-- Contenido -->
+      <div class="form-group">
+        <label for="letterContent" class="form-label">
+          <mat-icon>description</mat-icon>
+          Contenido de la Carta
+        </label>
+        <textarea
+          id="letterContent"
+          class="form-textarea"
+          [(ngModel)]="letterContent"
+          name="letterContent"
+          placeholder="Escribe el contenido de tu carta de amor..."
+          rows="8"
+          required
+          [disabled]="isSubmitting"
+        ></textarea>
+        <small class="form-hint">{{ letterContent.length }} caracteres</small>
+      </div>
+
+      <!-- 🔹 Actions -->
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onClose()"
+          [disabled]="isSubmitting"
+        >
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!isValid || isSubmitting"
+        >
+          <mat-icon>add</mat-icon>
+          {{ submitLabel }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

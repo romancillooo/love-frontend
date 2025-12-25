@@ -7,13 +7,16 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth';
 import { PhotoService } from '../../../core/services/photo.service';
 import { AlbumService } from '../../../core/services/album.service';
+import { LetterService } from '../../../core/services/letter.service';
+import { LoveLoaderService } from '../../../core/services/love-loader.service';
 import { ImageUploaderComponent } from '../image-uploader/image-uploader';
 import { AlbumCreatorComponent } from '../album-creator/album-creator';
+import { LetterCreatorComponent } from '../letter-creator/letter-creator';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, MatIconModule, RouterLink, RouterLinkActive, AlbumCreatorComponent],
+  imports: [CommonModule, MatIconModule, RouterLink, RouterLinkActive, AlbumCreatorComponent, LetterCreatorComponent],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
 })
@@ -25,8 +28,14 @@ export class NavbarComponent {
   currentTitle = 'Nuestros momentos';
   menuOpen = signal(false);
   uploadMenuOpen = signal(false); // 🔹 Menú desplegable para subir contenido
+  batchActionsOpen = signal(false); // 🔹 Menú de acciones en lote (selección)
   showAlbumCreator = signal(false); // 🔹 Mostrar modal de crear álbum
+  showLetterCreator = signal(false); // 🔹 Mostrar modal de crear carta
   isPhotosRoute = false;
+  isLettersRoute = false;
+  isSuperAdmin = signal(false);
+  isSelectionMode = signal(false);
+  selectionCount = signal(0);
 
   readonly navigationLinks = [
     { label: 'Inicio', icon: 'favorite', route: '/home' },
@@ -43,6 +52,8 @@ export class NavbarComponent {
     private readonly dialog: MatDialog,
     private readonly albumService: AlbumService,
     private readonly photoService: PhotoService,
+    private readonly letterService: LetterService,
+    private readonly loaderService: LoveLoaderService,
   ) {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -58,6 +69,34 @@ export class NavbarComponent {
         document.body.classList.remove('menu-open');
       }
     });
+
+    // Verificar rol del usuario
+    this.checkUserRole();
+
+    // 🔹 Suscribirse al estado de selección
+    this.photoService.selectionMode$
+      .pipe(filter(() => true)) // nos aseguramos de recibir valores
+      .subscribe((isActive) => {
+        this.isSelectionMode.set(isActive);
+      });
+
+    // 🔹 Suscribirse al conteo
+    this.photoService.selectionCount$
+      .pipe(filter(() => true))
+      .subscribe((count) => {
+        this.selectionCount.set(count);
+      });
+  }
+
+  private checkUserRole() {
+    const role = this.auth.getUserRole();
+    const isSuperAdmin = this.auth.hasRole('superadmin');
+    
+    // 🔹 Debug: ver qué rol tiene el usuario
+    console.log('🔍 Rol del usuario:', role);
+    console.log('🔍 ¿Es superadmin?', isSuperAdmin);
+    
+    this.isSuperAdmin.set(isSuperAdmin);
   }
 
   @HostListener('window:scroll', [])
@@ -103,11 +142,35 @@ export class NavbarComponent {
   }
 
   toggleUploadMenu() {
+    // Si estamos en modo selección, el botón funciona como cancelar
+    if (this.isSelectionMode()) {
+      this.photoService.setSelectionMode(false);
+      return;
+    }
     this.uploadMenuOpen.update((v) => !v);
   }
 
   closeUploadMenu() {
     this.uploadMenuOpen.set(false);
+  }
+
+  toggleBatchActions() {
+    this.batchActionsOpen.update((v) => !v);
+  }
+
+  closeBatchActions() {
+    this.batchActionsOpen.set(false);
+  }
+
+  requestBatchAddToAlbum() {
+    this.closeBatchActions();
+    this.photoService.requestBatchAddToAlbum();
+  }
+
+  requestBatchDownload() {
+    this.closeBatchActions();
+    // TODO: Implementar lógica de descargar en lote
+    console.log('Solicitando descarga en lote');
   }
 
   openImageUploader() {
@@ -138,6 +201,15 @@ export class NavbarComponent {
     this.showAlbumCreator.set(false);
   }
 
+  enableSelectionMode() {
+    this.uploadMenuOpen.set(false); // Cerrar menú explícitamente sin animación de toggle
+    this.photoService.setSelectionMode(true);
+  }
+
+  triggerBatchDelete() {
+    this.photoService.requestBatchDelete();
+  }
+
   onCreateAlbum(albumData: { name: string; description: string }) {
     this.albumService.createAlbum(albumData).subscribe({
       next: (album) => {
@@ -150,12 +222,54 @@ export class NavbarComponent {
     });
   }
 
+  openLetterCreator() {
+    this.showLetterCreator.set(true);
+  }
+
+  closeLetterCreator() {
+    this.showLetterCreator.set(false);
+  }
+
+  onCreateLetter(letterData: {
+    title: string;
+    icon: string;
+    content: string;
+  }) {
+    // Mostrar loader mientras se crea la carta
+    this.loaderService.show('💌 Creando tu carta con todo mi amor...');
+
+    this.letterService.createLetter(letterData).subscribe({
+      next: (letter) => {
+        console.log('✅ Carta creada:', letter);
+        this.closeLetterCreator();
+        // Refrescar la lista de cartas
+        this.letterService.clearCacheAndRefresh();
+        // Ocultar loader después de un pequeño delay para mostrar el mensaje de éxito
+        setTimeout(() => {
+          this.loaderService.hide();
+        }, 800);
+      },
+      error: (err) => {
+        console.error('❌ Error al crear carta:', err);
+        // Ocultar loader en caso de error
+        this.loaderService.hide();
+      },
+    });
+  }
+
   private handleRouteChange(url: string) {
     this.isRouteAllowed = url !== '/login';
     this.activeNavRoute = this.resolveActiveRoute(url);
     this.currentTitle = this.resolveTitle(url);
     this.showBackButton = this.shouldShowBack(url);
     this.isPhotosRoute = url === '/photos';
+    this.isLettersRoute = url === '/letters';
+    
+    // Re-verificar el rol cuando cambia la ruta (por si el token cambió)
+    if (url === '/letters') {
+      this.checkUserRole();
+    }
+    
     this.closeMenu();
   }
 

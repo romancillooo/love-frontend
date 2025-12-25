@@ -23,8 +23,19 @@
         </button>
       </div>
 
-      <!-- 🔹 Botón "+" con menú desplegable -->
+      <!-- 🔹 Botón "+" con menú desplegable para /photos -->
       <div *ngIf="isPhotosRoute" class="upload-menu-container">
+        <!-- 🗑️ Botón Eliminar (solo visible si hay selección) -->
+        <button
+          *ngIf="isSelectionMode() && selectionCount() > 0"
+          class="delete-btn icon-btn"
+          type="button"
+          (click)="triggerBatchDelete()"
+          aria-label="Eliminar seleccionados"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+
         <button
           class="upload-btn icon-btn"
           type="button"
@@ -32,10 +43,35 @@
           aria-label="Subir contenido"
           [class.is-active]="uploadMenuOpen()"
         >
-          <mat-icon>add</mat-icon>
+          <mat-icon>{{ isSelectionMode() ? 'close' : 'add' }}</mat-icon>
         </button>
 
-        <!-- Menú desplegable -->
+        <!-- 🌸 Botón "+" EXTRA para acciones en lote (Solo visible si hay selección) -->
+        <div class="batch-actions-wrapper" *ngIf="isSelectionMode() && selectionCount() > 0">
+          <button
+            class="batch-btn icon-btn"
+            type="button"
+            (click)="toggleBatchActions()"
+            [class.is-active]="batchActionsOpen()"
+            aria-label="Opciones de selección"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+
+          <!-- Dropdown de acciones en lote -->
+          <div class="upload-dropdown batch-dropdown" *ngIf="batchActionsOpen()">
+            <button type="button" class="dropdown-item" (click)="requestBatchAddToAlbum()">
+              <mat-icon>photo_album</mat-icon>
+              <span>Agregar a álbum</span>
+            </button>
+            <button type="button" class="dropdown-item" (click)="requestBatchDownload()">
+              <mat-icon>download</mat-icon>
+              <span>Descargar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Menú desplegable principal -->
         <div class="upload-dropdown" *ngIf="uploadMenuOpen()">
           <button type="button" class="dropdown-item" (click)="openImageUploader()">
             <mat-icon>photo_library</mat-icon>
@@ -45,7 +81,23 @@
             <mat-icon>photo_album</mat-icon>
             <span>Crear Nuevo Álbum</span>
           </button>
+          <button type="button" class="dropdown-item" (click)="enableSelectionMode()">
+            <mat-icon>checklist_rtl</mat-icon>
+            <span>Seleccionar</span>
+          </button>
         </div>
+      </div>
+
+      <!-- 🔹 Botón "+" para crear carta en /letters (solo superadmin) -->
+      <div *ngIf="isLettersRoute && isSuperAdmin()" class="upload-menu-container">
+        <button
+          class="upload-btn icon-btn"
+          type="button"
+          (click)="openLetterCreator()"
+          aria-label="Crear nueva carta"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
     </div>
 
@@ -77,6 +129,7 @@
 
 <!-- 🔹 Overlay para cerrar menú de upload -->
 <div class="upload-menu-overlay" *ngIf="uploadMenuOpen()" (click)="closeUploadMenu()"></div>
+<div class="upload-menu-overlay" *ngIf="batchActionsOpen()" (click)="closeBatchActions()"></div>
 
 <!-- 🔹 Modal de crear álbum -->
 <app-album-creator
@@ -84,3 +137,10 @@
   (close)="closeAlbumCreator()"
   (create)="onCreateAlbum($event)"
 ></app-album-creator>
+
+<!-- 🔹 Modal de crear carta -->
+<app-letter-creator
+  *ngIf="showLetterCreator()"
+  (close)="closeLetterCreator()"
+  (create)="onCreateLetter($event)"
+></app-letter-creator>

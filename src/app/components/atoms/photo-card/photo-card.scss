@@ -24,6 +24,24 @@
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
   }
 
+  &.is-selected {
+    transform: scale(0.95);
+    /* Sombra suave y borde luz en lugar de borde rojo duro */
+    box-shadow: 
+      0 0 0 4px rgba(255, 255, 255, 0.5),
+      0 12px 28px rgba(255, 105, 135, 0.35);
+
+    .photo-frame img {
+      /* Efecto de "cristal" o slight dim */
+      filter: brightness(0.95);
+    }
+  }
+
+  &.selection-mode:not(.is-selected):hover {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
   .photo-frame {
     display: flex;
     flex-direction: column;
@@ -31,6 +49,29 @@
     position: relative;
     overflow: hidden;
     border-radius: 18px;
+
+    /* ✅ Overlay de selección */
+    .selection-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 105, 135, 0.45); /* Salmon tint overlay */
+      backdrop-filter: blur(2px);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fade-in 0.2s ease-out;
+
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        color: #fff;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        transform: scale(0);
+        animation: scale-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+    }
 
     // 💾 Botón de descarga (solo desktop)
     .download-btn {
@@ -149,14 +190,15 @@
     transform: scale(1.05);
   }
 
+  // Mostrar figcaption al hacer hover (siempre)
   &:hover .photo-frame figcaption,
   &:focus-visible .photo-frame figcaption {
     opacity: 1;
   }
 
-  // Mostrar botón de descarga al hacer hover
-  &:hover .photo-frame .download-btn,
-  &:focus-visible .photo-frame .download-btn {
+  // Mostrar botón de descarga al hacer hover (pero NO en modo selección)
+  &:not(.selection-mode):hover .photo-frame .download-btn,
+  &:not(.selection-mode):focus-visible .photo-frame .download-btn {
     opacity: 1;
   }
 }
@@ -169,6 +211,15 @@
   }
   to {
     opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scale-up {
+  from {
+    transform: scale(0);
+  }
+  to {
     transform: scale(1);
   }
 }

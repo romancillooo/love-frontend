@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import * as exifr from 'exifr';
 import { Photo } from '../../../core/models/photo';
 import { PhotoService, UploadedPhoto } from '../../../core/services/photo.service';
-import { PhotoPreviewComponent } from '../../molecules/photo-preview/photo-preview';
 import { LoveLoaderComponent } from '../../shared/love-loader/love-loader';
 
 @Component({
@@ -17,7 +16,6 @@ import { LoveLoaderComponent } from '../../shared/love-loader/love-loader';
     CommonModule,
     MatDialogModule,
     MatIconModule,
-    PhotoPreviewComponent,
     LoveLoaderComponent,
   ],
   templateUrl: './image-uploader.html',
@@ -223,44 +221,95 @@ export class ImageUploaderComponent implements OnDestroy {
   }
 
   // 🚀 Subir fotos al backend
-  uploadFiles() {
+  async uploadFiles() {
     if (this.files.length === 0) return;
 
     this.isLoaderVisible = true;
     this.isUploading = true;
 
-    // 🔹 Mensaje inicial
-    this.loaderMessage = '💌 Subiendo tus recuerdos...';
+    // 🔹 Mensaje inicial de compresión
+    this.loaderMessage = '⚡ Optimizando tus fotos para subir rapídisimo...';
     this.cdr.detectChanges();
 
-    this.photoService.uploadPhotos(this.files, 'memories').subscribe({
-      next: (photos: UploadedPhoto[]) => {
-        console.log('✅ Fotos subidas:', photos);
+    const compressedFiles: File[] = [];
+    const creationDates: string[] = [];
 
-        // 💬 Cambiamos mensaje para feedback visual
-        this.loaderMessage = '🎉 Fotos subidas con éxito, actualizando galería...';
-        this.cdr.detectChanges();
+    // 🔹 Configuración de compresión
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      initialQuality: 0.8,
+    };
 
-        // 🔁 Espera 800ms antes de cerrar para mostrar el mensaje
-        setTimeout(() => {
-          this.isLoaderVisible = false;
-          this.isUploading = false;
-          this.dialogRef.close(photos); // Devuelve las fotos subidas
-          this.cdr.detectChanges();
-        }, 800);
-      },
-      error: err => {
-        console.error('❌ Error subiendo fotos:', err);
-        this.loaderMessage = '😢 Hubo un error subiendo tus recuerdos.';
-        this.isUploading = false;
+    try {
+      // 🔹 Importación dinámica para code-splitting
+      const imageCompression = (await import('browser-image-compression')).default;
 
-        // Espera un poco y oculta el loader para que se vea el mensaje
-        setTimeout(() => {
-          this.isLoaderVisible = false;
-          this.cdr.detectChanges();
-        }, 2000);
+      // 🔹 Comprimir cada archivo
+      for (const file of this.files) {
+        console.log(`[Compression] Original: ${file.name} - ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+
+        // Recolectar fecha original (metadata ya tiene la fecha extraída en handleFiles)
+        const originalDate = this.metadata.get(file);
+        creationDates.push(originalDate ? originalDate.toISOString() : new Date().toISOString());
+
+        try {
+          const compressedBlob = await imageCompression(file, options);
+          const compressedFile = new File([compressedBlob], file.name, {
+            type: compressedBlob.type,
+            lastModified: file.lastModified,
+          });
+          console.log(`[Compression] Compressed: ${compressedFile.name} - ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+          compressedFiles.push(compressedFile);
+        } catch (error) {
+          console.warn(`[Compression] Failed for ${file.name}, using original.`, error);
+          compressedFiles.push(file);
+        }
       }
-    });
+
+      // 🔹 Mensaje de subida
+      this.loaderMessage = '💌 Subiendo tus recuerdos...';
+      this.cdr.detectChanges();
+
+      this.photoService.uploadPhotos(compressedFiles, 'memories', creationDates).subscribe({
+        next: (photos: UploadedPhoto[]) => {
+          console.log('✅ Fotos subidas:', photos);
+
+          // 💬 Cambiamos mensaje para feedback visual
+          this.loaderMessage = '🎉 Fotos subidas con éxito, actualizando galería...';
+          this.cdr.detectChanges();
+
+          // 🔁 Espera 800ms antes de cerrar para mostrar el mensaje
+          setTimeout(() => {
+            this.isLoaderVisible = false;
+            this.isUploading = false;
+            this.dialogRef.close(photos); // Devuelve las fotos subidas
+            this.cdr.detectChanges();
+          }, 800);
+        },
+        error: err => {
+          console.error('❌ Error subiendo fotos:', err);
+          this.loaderMessage = '😢 Hubo un error subiendo tus recuerdos.';
+          this.isUploading = false;
+
+          // Espera un poco y oculta el loader para que se vea el mensaje
+          setTimeout(() => {
+            this.isLoaderVisible = false;
+            this.cdr.detectChanges();
+          }, 2000);
+        }
+      });
+
+    } catch (error) {
+      console.error('❌ Error general en compresión:', error);
+      this.loaderMessage = '😢 Error preparando las fotos.';
+      this.isUploading = false;
+      setTimeout(() => {
+        this.isLoaderVisible = false;
+        this.cdr.detectChanges();
+      }, 2000);
+    }
   }
 
   closeDialog() {
