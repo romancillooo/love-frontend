@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   z-index: 1900; /* un poco por debajo del modal */
-  background: rgba(255, 81, 115, 0.22);
+  background: rgba(139, 92, 246, 0.22); /* 💜 Lila overlay */
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   animation: fade-in 0.25s ease forwards;
@@ -20,7 +20,7 @@
   flex-direction: column;
   gap: 1.25rem;
   width: clamp(320px, 90vw, 520px);
-  background: rgba(255, 151, 169, 0.18);
+  background: rgba(167, 139, 250, 0.18); /* 💜 Lila glassmorphism */
   backdrop-filter: blur(18px) saturate(185%);
   -webkit-backdrop-filter: blur(18px) saturate(185%);
   border-radius: 24px;
@@ -226,7 +226,7 @@
       padding: 0;
 
       &:hover {
-        background: rgba(255, 105, 135, 0.8);
+        background: rgba(167, 139, 250, 0.8); /* 💜 Lila hover */
         transform: scale(1.1);
       }
 
@@ -286,7 +286,7 @@
   }
 
   .upload-btn {
-    background: linear-gradient(135deg, var(--salmon-500), var(--rose-400));
+    background: linear-gradient(135deg, var(--violet-500), var(--lilac-400));
     color: #fff;
 
     &:disabled {
@@ -296,7 +296,7 @@
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(255, 105, 135, 0.35);
+      box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
     }
   }
 }

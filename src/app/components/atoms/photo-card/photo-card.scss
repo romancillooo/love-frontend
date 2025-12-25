@@ -16,7 +16,7 @@
   will-change: transform;
 
   &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(255, 105, 135, 0.45);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.45); /* 💜 Lila */
   }
 
   &:hover {
@@ -29,7 +29,7 @@
     /* Sombra suave y borde luz en lugar de borde rojo duro */
     box-shadow: 
       0 0 0 4px rgba(255, 255, 255, 0.5),
-      0 12px 28px rgba(255, 105, 135, 0.35);
+      0 12px 28px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
 
     .photo-frame img {
       /* Efecto de "cristal" o slight dim */
@@ -54,7 +54,7 @@
     .selection-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(255, 105, 135, 0.45); /* Salmon tint overlay */
+      background: rgba(167, 139, 250, 0.45); /* 💜 Tinte lila overlay */
       backdrop-filter: blur(2px);
       z-index: 10;
       display: flex;
@@ -101,7 +101,7 @@
       }
 
       &:hover:not(:disabled) {
-        background: rgba(255, 105, 135, 0.8);
+        background: rgba(167, 139, 250, 0.8); /* 💜 Lila hover */
         transform: scale(1.1);
       }
 
@@ -115,7 +115,7 @@
       }
 
       &:focus-visible {
-        outline: 2px solid rgba(255, 105, 135, 0.6);
+        outline: 2px solid rgba(167, 139, 250, 0.6); /* 💜 Lila outline */
         outline-offset: 2px;
       }
 

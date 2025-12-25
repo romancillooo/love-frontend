@@ -9,13 +9,58 @@
   transition:
     transform 0.35s ease-in-out,
     background 0.25s ease;
-  background: rgba(255, 81, 115, 0.22);
+  background: rgba(139, 92, 246, 0.22); /* 💜 Lila translúcido */
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
   transform: translateY(0);
   will-change: transform;
   pointer-events: auto;
+
+  /* 🔹 Mobile Menu Overlay styles */
+  @media (max-width: 899px) {
+    /* Cuando el menú no está abierto o en modo collapsed, background original */
+    /* Pero si expandimos .nav-links podríamos aplicar un fondo sólido morado */
+    
+    /* .nav-links.is-open styles removed to keep background minimal */
+    
+    /* Forzar texto blanco solo en mobile */
+    .nav-link {
+      color: #fff !important;
+      
+      &.is-current,
+      &.is-active, 
+      &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+      }
+
+      
+      /* Ajuste específico para el link de Salir en Mobile */
+      &.logout-link {
+        mat-icon {
+          font-size: 20px !important;
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+      }
+    }
+
+    /* 🚫 Desactivar hover en mobile para toggle y upload y forzar blanco */
+    .menu-toggle,
+    .upload-btn,
+    .back-btn {
+      color: #fff !important; /* 🤍 Iconos blancos */
+      
+      &:hover,
+      &:active {
+        background: rgba(255, 255, 255, 0.45) !important; /* Mantener fondo original */
+        color: #fff !important;
+        transform: none !important;
+      }
+    }
+  }
 
   &.hidden {
     transform: translateY(-110%);
@@ -43,8 +88,8 @@
   height: 42px;
   border-radius: 12px;
   border: none;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.45); /* 🤍 Fondo activo suave */
+  color: #7c3aed; /* 💜 Icono violeta */
   cursor: pointer;
   transition:
     background 0.2s ease,
@@ -61,7 +106,7 @@
 
   &:hover {
     transform: translateY(-1px);
-    background: rgba(255, 105, 135, 0.6);
+    background: rgba(167, 139, 250, 0.6); /* 💜 Lila hover */
   }
 }
 
@@ -92,7 +137,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #fff;
+  color: #7c3aed; /* 💜 Texto violeta */
   font-weight: 700;
   letter-spacing: 0.06em;
   text-decoration: none;
@@ -133,7 +178,7 @@
   gap: 0.35rem;
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #7c3aed; /* 💜 Texto violeta */
   text-decoration: none;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -143,27 +188,34 @@
   border: none;
   background: transparent;
   cursor: pointer;
+  
+  /* 🔹 Importante: en desktop sobrescribimos esto con violeta, en mobile será blanco */
+  color: #fff;
+  
+  @media (min-width: 900px) {
+    color: #7c3aed; /* Violeta en desktop */
+  }
 
   mat-icon {
     font-size: 20px;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.45);
+    color: #7c3aed;
   }
 
   &.is-current,
   &.is-active {
-    background: rgba(255, 255, 255, 0.32);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.45);
+    color: #7c3aed;
   }
 
   &.logout-link {
     margin-top: 0.1rem;
 
     &:hover {
-      background: rgba(255, 105, 135, 0.35);
+      background: rgba(167, 139, 250, 0.35); /* 💜 Lila hover */
       color: #fff;
     }
   }
@@ -176,11 +228,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (max-width: 899px) {
+    &.hide-when-menu-open {
+      display: none;
+    }
+  }
 }
 
 .delete-btn {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.45);
+  color: #7c3aed;
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -192,15 +250,15 @@
   transition: all 0.2s ease;
   
   &:hover {
-    background: #ff4b5c; /* Rojo al hacer hover */
+    background: #8b5cf6; /* 💜 Lila vibrante al hacer hover */
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 75, 92, 0.3);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
   }
 }
 
 .upload-btn {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.45);
+  color: #7c3aed;
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -213,12 +271,12 @@
   transition: all 0.2s ease;
 
   &.is-active {
-    background: rgba(255, 105, 135, 0.4);
+    background: rgba(167, 139, 250, 0.4); /* 💜 Lila active */
     transform: rotate(45deg);
   }
 
   &:hover {
-    background: rgba(255, 105, 135, 0.3);
+    background: rgba(167, 139, 250, 0.3); /* 💜 Lila hover */
   }
 }
 
@@ -228,8 +286,8 @@
 }
 
 .batch-btn {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.45);
+  color: #7c3aed;
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -241,12 +299,12 @@
   transition: all 0.2s ease;
 
   &.is-active {
-    background: rgba(255, 105, 135, 0.4);
+    background: rgba(167, 139, 250, 0.4); /* 💜 Lila active */
     transform: rotate(45deg);
   }
 
   &:hover {
-    background: rgba(255, 105, 135, 0.3);
+    background: rgba(167, 139, 250, 0.3); /* 💜 Lila hover */
   }
 }
 
@@ -256,12 +314,12 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 200px;
-  background: rgba(255, 151, 169, 0.85);
+  background: rgba(167, 139, 250, 0.85); /* 💜 Lila dropdown */
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(255, 105, 135, 0.35);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
   padding: 0.5rem;
   z-index: 1001;
   animation: dropdown-fade-in 0.2s ease-out;

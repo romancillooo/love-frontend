@@ -142,6 +142,14 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.showSelectAlbumModal = true;
         this.cdr.detectChanges();
       });
+
+    // 🔹 Suscripción a la solicitud de descarga en lote desde el Navbar
+    this.photoService.batchDownloadRequest$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.selectedPhotoIds.size === 0) return;
+        this.downloadSelectedPhotos();
+      });
   }
 
   ngAfterViewInit() {
@@ -521,6 +529,71 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.albumNameForRemoval = payload.albumName;
     this.confirmRemoveFromAlbumVisible = true;
     this.photoPendingDeletion = payload.photoId;
+    this.cdr.detectChanges();
+  }
+
+  async downloadSelectedPhotos() {
+    this.isLoaderVisible = true;
+    this.loaderMessage = `Preparando descarga (${this.selectedPhotoIds.size} recuerdos)...`;
+    this.cdr.detectChanges();
+
+    const idsToDownload = Array.from(this.selectedPhotoIds);
+    let successCount = 0;
+
+    // Procesar descargas secuencialmente para no saturar al navegador ni al servidor
+    for (const photoId of idsToDownload) {
+      // Verificar si seguimos en modo selección (usuario podría haber cancelado)
+      if (!this.isSelectionMode) break;
+
+      const photo = this.allPhotos.find((p) => p.id === photoId);
+      if (!photo) continue;
+
+      try {
+        // toPromise está deprecado en RxJS 7+, usamos firstValueFrom o una suscripción asíncrona simple
+        // Angular actual suele tener RxJS donde toPromise aún existe o se usa lastValueFrom
+        // Para mayor compatibilidad usaremos una promesa manual sobre la suscripción
+        const blob = await new Promise<Blob | undefined>((resolve, reject) => {
+          this.photoService.downloadPhoto(photoId).subscribe({
+            next: (data) => resolve(data),
+            error: (err) => reject(err),
+          });
+        });
+
+        if (blob) {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          // Usar el nombre original si existe, o un genérico con la extensión correcta según el blob type
+          const ext = blob.type === 'image/png' ? 'png' : 'jpg';
+          a.download = photo.originalName || `recuerdo-love-${photoId}.${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          
+          // Limpiar
+          setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+          
+          successCount++;
+        }
+      } catch (err) {
+        console.error(`❌ Error al descargar foto ${photoId}:`, err);
+      }
+      
+      // Pequeña pausa entre descargas
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    this.isLoaderVisible = false;
+    this.loaderMessage = '';
+    
+    if (successCount > 0) {
+      // Salir del modo selección si se descargó algo
+      this.photoService.setSelectionMode(false);
+    }
+    
     this.cdr.detectChanges();
   }
 

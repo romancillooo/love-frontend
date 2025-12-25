@@ -3,7 +3,7 @@
   inset: 0;
   z-index: 2000; /* Por encima de todo, incluido el navbar */
   /* Copiado de image-uploader.scss para consistencia 🎨 */
-  background: rgba(255, 81, 115, 0.35) !important; /* Aumenté un poco la opacidad para asegurar el tono rosa */
+  background: rgba(139, 92, 246, 0.35) !important; /* 💜 Lila overlay */
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   display: flex;
@@ -74,7 +74,7 @@
     
     /* Estilos específicos si se quiere diferenciar */
     &.delete:hover {
-      background: rgba(255, 75, 92, 0.6); /* Rojo al hover */
+      background: rgba(124, 58, 237, 0.6); /* 💜 Violeta oscuro para eliminar */
     }
   }
 

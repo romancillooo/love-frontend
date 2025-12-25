@@ -44,10 +44,10 @@ body.menu-open {
 :root {
   --ff-display: 'Raleway', sans-serif;
 
-  /* Colores personalizados */
-  --rose-400: #f893a4;
-  --rose-500: #ee9ca7;
-  --salmon-500: #ff4b5c;
+  /* Colores personalizados 💜 Paleta Lila */
+  --lilac-400: #c084fc;
+  --lilac-500: #a78bfa;
+  --violet-500: #8b5cf6;
 }
 
 /* Botones reutilizables */
@@ -64,7 +64,7 @@ body.menu-open {
   font-size: 1rem;
   cursor: pointer;
   color: #fff;
-  background: linear-gradient(135deg, var(--salmon-500), var(--rose-400));
+  background: linear-gradient(135deg, var(--violet-500), var(--lilac-400));
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -73,7 +73,7 @@ body.menu-open {
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(255, 105, 135, 0.35);
+  box-shadow: 0 16px 34px rgba(139, 92, 246, 0.35);
 }
 
 .btn.secondary {

@@ -18,7 +18,7 @@
   width: 90%;
   max-width: 320px;
 
-  background: rgba(248, 147, 164, 0.15);
+  background: rgba(192, 132, 252, 0.15); /* 💜 Lila glassmorphism */
   backdrop-filter: blur(8px);
   border-radius: 16px;
   padding: 30px;
@@ -45,7 +45,7 @@
 .title {
   font-family: var(--ff-display);
   font-size: 2.2rem;
-  color: var(--salmon-500);
+  color: var(--violet-500); /* 💜 Lila */
   margin: 0 0 0.75rem 0;
   text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
 
@@ -57,7 +57,7 @@
 
   .love-icon {
     font-size: 34px !important;
-    color: var(--rose-400);
+    color: var(--lilac-400); /* 💜 Lila */
     animation: heartbeat 1.5s infinite;
 
     width: auto !important;
@@ -68,14 +68,13 @@
     justify-content: center;
     overflow: visible !important;
 
-    /* ✨ Glow rosadito */
-    filter: drop-shadow(0 0 6px rgba(248, 147, 164, 0.7));
+    filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.7)); /* 💜 Glow lila */
   }
 }
 
 .subtitle {
   font-size: 1rem;
-  color: var(--salmon-500);
+  color: var(--violet-500); /* 💜 Lila */
   margin-bottom: 20px;
   display: flex;
   align-items: center;
@@ -84,7 +83,7 @@
 
   .key-icon {
     font-size: 18px;
-    color: var(--salmon-500);
+    color: var(--violet-500); /* 💜 Lila */
   }
 }
 
@@ -103,13 +102,13 @@
       width: 100%;
       padding: 12px 40px 12px 12px;
       border-radius: 8px;
-      border: 1px solid var(--salmon-500);
+      border: 1px solid var(--violet-500); /* 💜 Lila */
       outline: none;
       font-size: 0.9rem;
       box-sizing: border-box;
 
       &::placeholder {
-        color: var(--rose-400);
+        color: var(--lilac-400); /* 💜 Lila */
         opacity: 0.8;
         font-style: italic;
       }
@@ -129,12 +128,12 @@
 
       mat-icon {
         font-size: 22px;
-        color: var(--salmon-500);
+        color: var(--violet-500); /* 💜 Lila */
         transition: color 0.2s ease;
       }
 
       &:hover mat-icon {
-        color: #ff1e3c;
+        color: #7c3aed; /* 💜 Lila oscuro */
       }
     }
   }

@@ -169,8 +169,7 @@ export class NavbarComponent {
 
   requestBatchDownload() {
     this.closeBatchActions();
-    // TODO: Implementar lógica de descargar en lote
-    console.log('Solicitando descarga en lote');
+    this.photoService.requestBatchDownload();
   }
 
   openImageUploader() {

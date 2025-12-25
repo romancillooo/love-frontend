@@ -5,7 +5,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(50, 10, 20, 0.55); /* rosa oscuro translúcido */
+  background: rgba(30, 20, 50, 0.55); /* 💜 Lila oscuro translúcido */
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   display: flex;
@@ -28,13 +28,13 @@
   height: 200px;
   object-fit: contain;
   animation: pulse 1.8s ease-in-out infinite;
-  filter: drop-shadow(0 4px 16px rgba(255, 150, 170, 0.35));
+  filter: drop-shadow(0 4px 16px rgba(167, 139, 250, 0.35)); /* 💜 Glow lila */
 }
 
 .love-loader-message {
   font-family: var(--ff-display);
   font-size: 1.1rem;
-  color: #ffe6ec;
+  color: #ede9fe; /* 💜 Lila muy pálido */
   font-weight: 600;
   letter-spacing: 0.03em;
   text-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);

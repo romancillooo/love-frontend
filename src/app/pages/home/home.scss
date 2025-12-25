@@ -19,7 +19,7 @@
 }
 
 .home-hero {
-  background: rgba(255, 177, 190, 0.18);
+  background: rgba(167, 139, 250, 0.18); /* 💜 Lila glassmorphism */
   backdrop-filter: blur(18px) saturate(185%);
   -webkit-backdrop-filter: blur(18px) saturate(185%);
   border-radius: 28px;
@@ -46,8 +46,8 @@
   gap: 0.75rem;
   margin: 0;
   font-size: clamp(2.2rem, 4vw, 2.8rem);
-  color: var(--salmon-500);
-  text-shadow: 0 20px 40px rgba(255, 105, 135, 0.35);
+  color: var(--violet-500); /* 💜 Lila */
+  text-shadow: 0 20px 40px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
 
   mat-icon {
     font-size: 2rem;
@@ -90,7 +90,7 @@
   h2 {
     margin: 0;
     font-size: 1.4rem;
-    color: var(--salmon-500);
+    color: var(--violet-500);
   }
 
   &:hover,
@@ -148,7 +148,7 @@
   gap: 0.3rem;
   border: none;
   background: none;
-  color: var(--salmon-500);
+  color: var(--violet-500);
   font-weight: 600;
   cursor: pointer;
 

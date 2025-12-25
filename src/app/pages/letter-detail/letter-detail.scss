@@ -5,12 +5,12 @@
   min-height: 100vh;
   padding: 7rem 1.25rem 3rem;
   font-family: var(--ff-display);
-  background: radial-gradient(circle at top, rgba(255, 177, 190, 0.25), transparent 60%);
+  background: radial-gradient(circle at top, rgba(192, 132, 252, 0.25), transparent 60%); /* 💜 Lila gradient */
   animation: fade-in-up 0.6s ease-out;
 }
 
 .letter-container {
-  background: rgba(255, 177, 190, 0.18);
+  background: rgba(192, 132, 252, 0.18); /* 💜 Lila glassmorphism */
   backdrop-filter: blur(22px) saturate(185%);
   -webkit-backdrop-filter: blur(22px) saturate(185%);
   border-radius: 24px;
@@ -51,8 +51,8 @@
   margin: 0;
   line-height: 1;
   font-size: clamp(2rem, 5vw, 2.6rem);
-  color: var(--salmon-500);
-  text-shadow: 0 16px 28px rgba(255, 105, 135, 0.35);
+  color: var(--violet-500); /* 💜 Lila */
+  text-shadow: 0 16px 28px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
 }
 
 .subtitle {
@@ -69,7 +69,7 @@
   padding: 1.5rem;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.38);
-  border-left: 5px solid var(--salmon-500);
+  border-left: 5px solid var(--violet-500); /* 💜 Lila */
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 

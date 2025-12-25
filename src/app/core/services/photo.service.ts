@@ -66,6 +66,10 @@ export class PhotoService {
   private readonly batchAddToAlbumRequestSubject = new Subject<void>();
   batchAddToAlbumRequest$ = this.batchAddToAlbumRequestSubject.asObservable();
 
+  /** 🔹 Trigger para solicitar descarga en lote */
+  private readonly batchDownloadRequestSubject = new Subject<void>();
+  batchDownloadRequest$ = this.batchDownloadRequestSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
   setSelectionMode(isActive: boolean) {
@@ -85,6 +89,10 @@ export class PhotoService {
 
   requestBatchAddToAlbum() {
     this.batchAddToAlbumRequestSubject.next();
+  }
+
+  requestBatchDownload() {
+    this.batchDownloadRequestSubject.next();
   }
 
   // ========================================================

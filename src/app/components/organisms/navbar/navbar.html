@@ -24,7 +24,7 @@
       </div>
 
       <!-- 🔹 Botón "+" con menú desplegable para /photos -->
-      <div *ngIf="isPhotosRoute" class="upload-menu-container">
+      <div *ngIf="isPhotosRoute" class="upload-menu-container" [class.hide-when-menu-open]="menuOpen()">
         <!-- 🗑️ Botón Eliminar (solo visible si hay selección) -->
         <button
           *ngIf="isSelectionMode() && selectionCount() > 0"
@@ -89,7 +89,7 @@
       </div>
 
       <!-- 🔹 Botón "+" para crear carta en /letters (solo superadmin) -->
-      <div *ngIf="isLettersRoute && isSuperAdmin()" class="upload-menu-container">
+      <div *ngIf="isLettersRoute && isSuperAdmin()" class="upload-menu-container" [class.hide-when-menu-open]="menuOpen()">
         <button
           class="upload-btn icon-btn"
           type="button"

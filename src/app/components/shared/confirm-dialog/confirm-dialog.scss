@@ -12,7 +12,7 @@
 }
 
 .confirm-modal {
-  background: rgba(255, 151, 169, 0.18);
+  background: rgba(167, 139, 250, 0.18); /* 💜 Lila glassmorphism */
   border: 1px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(16px) saturate(180%);
   border-radius: 20px;
@@ -59,11 +59,11 @@
     }
 
     .confirm-btn {
-      background: linear-gradient(135deg, #ff5b79, #ff8fa8);
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa); /* 💜 Gradiente lila */
       color: #fff;
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(255, 105, 135, 0.35);
+        box-shadow: 0 12px 30px rgba(139, 92, 246, 0.35); /* 💜 Sombra lila */
       }
     }
   }

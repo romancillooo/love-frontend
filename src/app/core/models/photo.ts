@@ -8,5 +8,6 @@ export interface Photo {
   tags: string[];
   location?: string;
   legacyId?: number;
+  originalName?: string;
   isFavorite?: boolean; // 🔹 Campo para marcar como favorita
 }

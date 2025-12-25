@@ -31,12 +31,12 @@ export class LoginPage {
     const password = this.password.trim();
 
     if (!identifier) {
-      this.errorMessage = 'Necesito tu correo o tu usuario, mi amor ❤️';
+      this.errorMessage = 'Necesito tu correo o tu usuario, mi amor 💜';
       return;
     }
 
     if (!password) {
-      this.errorMessage = 'Por favor ingresa la clave amor ❤️';
+      this.errorMessage = 'Por favor ingresa la clave amor 💜';
       return;
     }
 
@@ -70,6 +70,6 @@ export class LoginPage {
         return backendMessage;
       }
     }
-    return '❌ Clave incorrecta, inténtalo otra vez mi amor ❤️';
+    return '❌ Clave incorrecta, inténtalo otra vez mi amor 💜';
   }
 }

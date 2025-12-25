@@ -7,13 +7,13 @@
   bottom: 0;
   overflow: hidden;
   z-index: -1;
-  background-color: #fef3f5;
+  background-color: #faf5ff; /* 💜 Lila muy claro */
 
   .heart {
     position: absolute;
     width: 20px;
     height: 20px;
-    background: #ff4b5c;
+    background: #8b5cf6; /* 💜 Lila vibrante */
     transform: rotate(45deg);
     opacity: 0;
     animation: float 10s infinite ease-in;
@@ -22,7 +22,7 @@
     &:nth-child(2) {
       left: 20%;
       animation-duration: 12s;
-      background: #ff6f91;
+      background: #a78bfa; /* 💜 Lila medio */
       width: 25px;
       height: 25px;
     }
@@ -30,7 +30,7 @@
     &:nth-child(3) {
       left: 40%;
       animation-duration: 8s;
-      background: #ffb3c1;
+      background: #c4b5fd; /* 💜 Lila claro */
       width: 15px;
       height: 15px;
     }
@@ -38,25 +38,25 @@
     &:nth-child(4) {
       left: 60%;
       animation-duration: 14s;
-      background: #ff4b5c;
+      background: #8b5cf6; /* 💜 Lila vibrante */
     }
 
     &:nth-child(5) {
       left: 80%;
       animation-duration: 11s;
-      background: #ff85a2;
+      background: #a78bfa; /* 💜 Lila medio */
     }
 
     &:nth-child(6) {
       left: 10%;
       animation-duration: 9s;
-      background: #ffccd5;
+      background: #ddd6fe; /* 💜 Lila pastel */
     }
 
     &:nth-child(7) {
       left: 50%;
       animation-duration: 13s;
-      background: #ff4b5c;
+      background: #8b5cf6; /* 💜 Lila vibrante */
       width: 30px;
       height: 30px;
     }
@@ -64,7 +64,7 @@
     &:nth-child(8) {
       left: 70%;
       animation-duration: 7s;
-      background: #ff99ac;
+      background: #c084fc; /* 💜 Lila suave */
     }
   }
 
