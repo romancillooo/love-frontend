@@ -43,6 +43,36 @@
     .header-actions-right {
       gap: 0.5rem;
     }
+
+    /* 📱 Fecha en mobile: Arriba derecha, debajo de los iconos */
+    .header-actions-left {
+      position: absolute;
+      top: 60px; /* Debajo de los botones */
+      right: 1.5rem; /* Alineado a la derecha */
+      text-align: right;
+      width: auto;
+      pointer-events: none;
+      
+      .photo-date {
+        font-size: 0.9rem; /* Un poco más pequeño que desktop pero legible */
+        display: block;
+        /* Se hereda el estilo limpio (color, shadow) del bloque general */
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+    }
+  }
+
+  .header-actions-left {
+    .photo-date {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1rem;
+      font-weight: 500;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      letter-spacing: 0.3px;
+    }
   }
 }
 
@@ -75,6 +105,16 @@
     /* Estilos específicos si se quiere diferenciar */
     &.delete:hover {
       background: rgba(124, 58, 237, 0.6); /* 💜 Violeta oscuro para eliminar */
+    }
+  }
+
+  &.favorite {
+    &.is-active {
+      color: #ec4899; /* 💖 Rosa corazón */
+      
+      mat-icon {
+        transform: scale(1.1); /* Efecto latido fijo */
+      }
     }
   }
 
@@ -112,6 +152,14 @@
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   user-select: none;
+  touch-action: none; /* 👆 Permite gestos de zoom sin scroll del navegador */
+  transform-origin: center center;
+  will-change: transform;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 

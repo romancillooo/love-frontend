@@ -1,14 +1,33 @@
-<div class="preview-overlay">
+<div class="preview-overlay"
+     (mousemove)="handleMouseMove($event)" 
+     (mouseup)="handleMouseUp()"
+     (mouseleave)="handleMouseUp()">
   <!-- 🏗️ Header con Acciones -->
   <div class="preview-header" (click)="$event.stopPropagation()">
     <div class="header-actions-left">
-      <!-- Espacio futuro (info de foto, etc) -->
+      <span class="photo-date">{{ photo.createdAt | date:"d 'de' MMMM, yyyy • h:mm a" }}</span>
     </div>
 
     <div class="header-actions-right">
+      <!-- ❤️ Favorito -->
+      <button 
+        class="action-btn favorite" 
+        [class.is-active]="photo.isFavorite"
+        type="button" 
+        (click)="onToggleFavorite()" 
+        title="Marcar como favorito"
+      >
+        <mat-icon>{{ photo.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+      </button>
+
       <!-- 🗑️ Borrar -->
       <button class="action-btn delete" type="button" (click)="onDelete()" title="Eliminar recuerdo">
         <mat-icon>delete</mat-icon>
+      </button>
+
+      <!-- 📂 Agregar a álbum -->
+      <button class="action-btn" type="button" (click)="onAddToAlbum()" title="Agregar a álbum">
+        <mat-icon>library_add</mat-icon>
       </button>
 
       <!-- 💾 Descargar -->
@@ -43,6 +62,15 @@
       [src]="photo.large || photo.small"
       [alt]="photo.description || 'Recuerdo'"
       class="preview-image"
+      [style.transform]="imageTransform"
+      (touchstart)="handleTouchStart($event)"
+      (touchmove)="handleTouchMove($event)"
+      (touchend)="handleTouchEnd($event)"
+      (touchcancel)="handleTouchEnd($event)"
+      (wheel)="handleWheel($event)"
+      (mousedown)="handleMouseDown($event)"
+      (dblclick)="handleDoubleClick()"
+      draggable="false"
     />
   </div>
 </div>

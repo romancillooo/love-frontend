@@ -72,8 +72,9 @@
            @for (month of yearData.months; track month.anchorId) {
              <div class="timeline-month" 
                   (click)="scrollToAnchor(month.anchorId)" 
-                  [title]="month.label + ' ' + yearData.year">
-               <span class="month-dot"></span>
+                  [title]="month.label + ' ' + yearData.year"
+                  [class.active]="activeAnchorId === month.anchorId">
+               <span class="month-dot">{{ month.label.charAt(0) }}</span>
                <span class="month-label">{{ month.label }}</span>
              </div>
            }
@@ -117,18 +118,27 @@
   </div>
   } @else {
   <!-- 🔹 Grid de fotos -->
-  <div class="gallery-grid" [class.is-loading]="isSkeletonVisible">
-    @for (photo of photos; track photo.id) {
-    <div class="gallery-item" [id]="'photo-' + photo.id" [class.is-loaded]="hasPhotoLoaded(photo.id)">
-      <app-photo-card
-        [photo]="photo"
-        [isSelectionMode]="isSelectionMode"
-        [isSelected]="selectedPhotoIds.has(photo.id)"
-        (toggleSelection)="onPhotoSelect($event)"
-        (openPreview)="openPreview($event)"
-        (imageLoaded)="onPhotoLoaded($event)"
-      ></app-photo-card>
-    </div>
+  <!-- 🔹 Grid de fotos (Agrupado por Meses) -->
+  <div class="gallery-sections" [class.is-loading]="isSkeletonVisible">
+    @for (group of groupedPhotos; track group.anchorId) {
+      <section class="month-section" [id]="group.anchorId">
+        <h3 class="month-title">{{ group.title }}</h3>
+        
+        <div class="gallery-grid">
+          @for (photo of group.photos; track photo.id) {
+            <div class="gallery-item" [id]="'photo-' + photo.id" [class.is-loaded]="hasPhotoLoaded(photo.id)">
+              <app-photo-card
+                [photo]="photo"
+                [isSelectionMode]="isSelectionMode"
+                [isSelected]="selectedPhotoIds.has(photo.id)"
+                (toggleSelection)="onPhotoSelect($event)"
+                (openPreview)="openPreview($event)"
+                (imageLoaded)="onPhotoLoaded($event)"
+              ></app-photo-card>
+            </div>
+          }
+        </div>
+      </section>
     }
   </div>
   } }
@@ -143,6 +153,8 @@
       (next)="showNextPhoto()"
       (prev)="showPreviousPhoto()"
       (delete)="onRequestPhotoDelete(selectedPhoto.id)"
+      (toggleFavorite)="onToggleFavorite(selectedPhoto.id!)"
+      (addToAlbum)="onRequestPreviewAddToAlbum(selectedPhoto!)"
     ></app-photo-preview>
   }
 

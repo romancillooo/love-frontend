@@ -68,6 +68,9 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   // 🔹 Timeline (Scrollbar de fechas)
   timelineData: { year: number; months: { label: string; anchorId: string }[] }[] = [];
   showTimeline = true;
+  
+  // 🔹 Grupos de fotos por mes/año para la vista
+  groupedPhotos: { title: string; anchorId: string; photos: Photo[] }[] = [];
 
   private readonly globalLoadedPhotoIds = new Set<string>();
   isSkeletonVisible = true;
@@ -160,7 +163,41 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.observer?.disconnect();
   }
+
+  // 🔹 Scroll Spy
+  activeAnchorId: string | null = null;
+  private observer: IntersectionObserver | null = null;
+
+  private setupIntersectionObserver() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    // Desconectar previo si existe
+    this.observer?.disconnect();
+
+    const options = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px', // Zona activa en el centro-top de la pantalla
+      threshold: 0
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          this.activeAnchorId = entry.target.id;
+          this.cdr.detectChanges();
+        }
+      });
+    }, options);
+
+    // Observar todas las secciones de meses
+    setTimeout(() => {
+      const sections = document.querySelectorAll('.month-section');
+      sections.forEach((section) => this.observer?.observe(section));
+    }, 100); // Pequeño delay para asegurar renderizado
+  }
+
 
   // ========================================================
   // 🔹 Navegación
@@ -523,6 +560,13 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  onRequestPreviewAddToAlbum(photo: Photo) {
+    this.photoIdForAlbum = photo.id;
+    this.photoLabelForAlbum = 'este recuerdo';
+    this.showSelectAlbumModal = true;
+    this.cdr.detectChanges();
+  }
+
   onRequestRemoveFromAlbum(payload: { photoId: string; albumId: string; albumName?: string }) {
     this.photoPendingDeletion = payload.photoId;
     this.albumIdForRemoval = payload.albumId;
@@ -617,59 +661,86 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.photos = [...filtered];
+    this.groupPhotosByMonth(this.photos); // 🔹 Agrupar fotos para la vista por secciones
     this.selectedPhoto = null;
     this.selectedIndex = -1;
     this.evaluateSkeletonState();
     this.buildTimeline();
+    
+    // 🔹 Configurar observador de scroll para el timeline
+    this.setupIntersectionObserver();
+  }
+
+  private groupPhotosByMonth(photos: Photo[]) {
+    this.groupedPhotos = [];
+    if (photos.length === 0) return;
+
+    const groups = new Map<string, Photo[]>();
+    const processingOrder: string[] = [];
+
+    photos.forEach((photo) => {
+      const date = new Date(photo.createdAt);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const key = `${year}-${month}`; // "2024-11"
+
+      if (!groups.has(key)) {
+        groups.set(key, []);
+        processingOrder.push(key);
+      }
+      groups.get(key)!.push(photo);
+    });
+
+    this.groupedPhotos = processingOrder.map((key) => {
+      const [yearStr, monthStr] = key.split('-');
+      const year = parseInt(yearStr, 10);
+      const month = parseInt(monthStr, 10);
+      
+      const date = new Date(year, month, 1);
+      const monthName = date.toLocaleString('es-ES', { month: 'long' });
+      // Capitalizar: "noviembre 2025" -> "Noviembre 2025"
+      const title = `${monthName} ${year}`.charAt(0).toUpperCase() + `${monthName} ${year}`.slice(1);
+
+      return {
+        title,
+        anchorId: `section-${key}`,
+        photos: groups.get(key)!
+      };
+    });
   }
 
   private buildTimeline() {
     this.timelineData = [];
     if (this.photos.length === 0) return;
 
-    // Solo mostrar timeline si hay suficientes fotos y no estamos en favoritos (aunque en favoritos también podría ser útil)
-    // Para simplificar, lo mostramos siempre que haya fotos.
-    
     const groups = new Map<number, Set<number>>(); // Año -> Set de Meses
-    const firstPhotoIds = new Map<string, string>(); // "Yr-Mo" -> PhotoId
 
     this.photos.forEach((photo) => {
       const date = new Date(photo.createdAt);
       const year = date.getFullYear();
       const month = date.getMonth();
-      const key = `${year}-${month}`;
-
+      
       if (!groups.has(year)) {
         groups.set(year, new Set());
       }
-      
-      const months = groups.get(year)!;
-      if (!months.has(month)) {
-        months.add(month);
-        // Guardamos el ID de la primera foto de ese mes como ancla
-        firstPhotoIds.set(key, photo.id);
-      }
+      groups.get(year)!.add(month);
     });
 
     // Construir estructura de datos ordenada
-    // Los años ya deberían venir ordenados si las fotos están ordenadas, pero aseguramos desc
     const sortedYears = Array.from(groups.keys()).sort((a, b) => b - a);
 
     this.timelineData = sortedYears.map(year => {
       const monthsSet = groups.get(year)!;
-      const sortedMonths = Array.from(monthsSet).sort((a, b) => b - a); // Dic -> Ene (Descendente)
+      const sortedMonths = Array.from(monthsSet).sort((a, b) => b - a);
       
       const months = sortedMonths.map(month => {
-        const key = `${year}-${month}`;
-        // Obtener nombre del mes
         const date = new Date(year, month, 1);
-        const label = date.toLocaleString('es-ES', { month: 'short' }); // "ene", "feb"...
-        // Capitalizar primera letra
+        const label = date.toLocaleString('es-ES', { month: 'short' });
         const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
         
         return {
           label: formattedLabel,
-          anchorId: firstPhotoIds.get(key)!
+          anchorId: `section-${year}-${month}` // ID de la sección
         };
       });
 
@@ -677,17 +748,15 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  scrollToAnchor(photoId: string) {
-    // 🔹 Buscar el elemento en el DOM
-    // El ID en el DOM será el ID de la foto directamente (ya que usamos photo.id en photo-card)
-    // Pero necesitamos asegurarnos de que el photo-card tenga el id asignado o un wrapper.
-    // Actualmente `app-photo-card` tiene `[photo]="photo"`.
-    // En el template `gallery-item` envuelve `app-photo-card`. Le pondremos ID al `gallery-item`.
-    
-    // Fallback: buscar por ID standard
-    const element = document.getElementById('photo-' + photoId);
+  scrollToAnchor(anchorId: string) {
+    const element = document.getElementById(anchorId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Ajuste de scroll para considerar el header fixed si fuera necesario
+      // Ojo: scrollIntoView a veces queda tapado por el navbar fixed.
+      // Usamos un offset manual si es necesario, o scrollIntoView con block: 'start' suele funcionar bien.
+      const yOffset = -80; // Compensar navbar
+      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }
 
@@ -954,6 +1023,11 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.showSelectAlbumModal = false;
           this.photoIdForAlbum = null;
           this.photoLabelForAlbum = undefined;
+
+          // 🔹 Cerrar preview si está abierto (volver a la galería)
+          if (this.selectedPhoto) {
+            this.closePreview();
+          }
 
           // Si fue batch, limpiamos la selección y salimos del modo selección
           if (isBatch) {

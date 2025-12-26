@@ -35,6 +35,13 @@ export class SelectAlbumComponent implements OnInit, OnDestroy {
     this.loadAlbums();
   }
 
+  ngOnChanges() {
+    if (this.photoId) {
+      this.clearSelection();
+      this.loadAlbums();
+    }
+  }
+
   ngOnDestroy() {
     this.subscription?.unsubscribe();
   }

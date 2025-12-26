@@ -8,9 +8,14 @@
           <h2>Agregar a álbum</h2>
         </div>
       </div>
-      <button type="button" class="close-btn" (click)="clearSelection(); close.emit()" aria-label="Cerrar">
-        <mat-icon>close</mat-icon>
-      </button>
+      <div class="header-controls">
+        <button type="button" class="control-btn add-album-btn" (click)="requestCreateAlbum.emit()" title="Crear nuevo álbum">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button type="button" class="control-btn close-btn" (click)="clearSelection(); close.emit()" aria-label="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
     </header>
 
     <section class="modal-body">
