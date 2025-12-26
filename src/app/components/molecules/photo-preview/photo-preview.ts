@@ -117,7 +117,6 @@ export class PhotoPreviewComponent implements OnInit, OnDestroy, OnChanges {
     // Solo prevenir default si estamos haciendo zoom o pan con zoom
     if (this.scale > 1 || event.touches.length === 2) {
       event.preventDefault();
-      // event.stopPropagation();
     }
 
     if (event.touches.length === 2 && this.startDistance > 0) {
@@ -127,6 +126,9 @@ export class PhotoPreviewComponent implements OnInit, OnDestroy, OnChanges {
       this.pointX = event.touches[0].clientX - this.startX;
       this.pointY = event.touches[0].clientY - this.startY;
     }
+    
+    // Forzar actualización visual
+    this.cdr.detectChanges();
   }
 
   handleTouchEnd(event: TouchEvent) {

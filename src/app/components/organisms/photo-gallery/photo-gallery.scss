@@ -157,18 +157,20 @@
           flex: 0 0 auto;
           scroll-snap-align: center;
         }
-
-        &::before,
-        &::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 1.5rem;
-          pointer-events: none;
-          z-index: 1;
-          background: transparent;
-        }
+        
+        /* Efecto fade fijo al borde derecho del viewport */
+        -webkit-mask-image: linear-gradient(
+          to right,
+          black 0%,
+          black 70%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to right,
+          black 0%,
+          black 70%,
+          transparent 100%
+        );
       }
     }
   }
