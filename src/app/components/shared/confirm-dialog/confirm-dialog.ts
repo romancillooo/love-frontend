@@ -1,6 +1,6 @@
 // src/app/components/shared/confirm-dialog/confirm-dialog.ts
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   templateUrl: './confirm-dialog.html',
   styleUrls: ['./confirm-dialog.scss'],
 })
-export class ConfirmDialogComponent {
+export class ConfirmDialogComponent implements OnInit, OnDestroy {
   @Input() visible = false;
   @Input() title = '¿Estás seguro? 💭';
   @Input() message = '¿Deseas continuar con esta acción?';
@@ -18,6 +18,16 @@ export class ConfirmDialogComponent {
 
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+
+  ngOnInit() {
+    // Bloquear scroll al abrir
+    document.body.style.overflow = 'hidden';
+  }
+
+  ngOnDestroy() {
+    // Restaurar scroll al cerrar
+    document.body.style.overflow = '';
+  }
 
   onConfirm() {
     console.log('✅ ConfirmDialog: onConfirm() llamado, emitiendo evento');

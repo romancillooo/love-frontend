@@ -18,35 +18,39 @@
           role="button"
           [attr.aria-label]="'Leer ' + letter.title"
         >
-          <!-- 🔹 Acciones (top corners) -->
-          <div class="card-actions">
-            <!-- Solo mostrar si tiene permisos -->
-            <button
-              *ngIf="canEdit(letter)"
-              type="button"
-              class="action-btn edit-btn"
-              (click)="onEdit(letter, $event)"
-              aria-label="Editar carta"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              *ngIf="canDelete(letter)"
-              type="button"
-              class="action-btn delete-btn"
-              (click)="onDelete(letter, $event)"
-              aria-label="Eliminar carta"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-
           <div class="letter-icon">
             <span class="icon">{{ letter.icon }}</span>
           </div>
           <h3 class="letter-title">{{ letter.title }}</h3>
           <p class="letter-preview">{{ letter.preview }}</p>
-          <span class="letter-cta">Abrir carta</span>
+          
+          <!-- 🔹 Footer con acciones y CTA -->
+          <div class="card-footer">
+            <div class="card-actions">
+              <!-- Solo mostrar si tiene permisos -->
+              <ng-container *ngIf="canEdit(letter) || canDelete(letter)">
+                <button
+                  *ngIf="canEdit(letter)"
+                  type="button"
+                  class="action-btn edit-btn"
+                  (click)="onEdit(letter, $event)"
+                  aria-label="Editar carta"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  *ngIf="canDelete(letter)"
+                  type="button"
+                  class="action-btn delete-btn"
+                  (click)="onDelete(letter, $event)"
+                  aria-label="Eliminar carta"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </ng-container>
+            </div>
+            <span class="letter-cta">Abrir carta</span>
+          </div>
         </article>
         }
       </div>
