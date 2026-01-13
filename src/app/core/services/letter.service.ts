@@ -127,7 +127,45 @@ export class LetterService {
   }
 
   // ========================================================
-  // 🔄 5. Limpiar caché y notificar refresh
+  // ✏️ 5. Actualizar una carta existente
+  // ========================================================
+  updateLetter(
+    id: string,
+    letterData: Partial<{ title: string; icon: string; content: string }>
+  ): Observable<Letter> {
+    return this.http.patch<{ letter: LetterDTO }>(`${this.lettersUrl}/${id}`, letterData).pipe(
+      map((response) => this.mapLetter(response.letter)),
+      tap(() => {
+        this.clearCacheAndRefresh();
+      }),
+      catchError((err) => {
+        console.error('❌ Error al actualizar carta:', err);
+        throw err;
+      }),
+    );
+  }
+
+  // ========================================================
+  // 🗑️ 6. Eliminar una carta
+  // ========================================================
+  deleteLetter(id: string): Observable<{ message: string; letter: Letter }> {
+    return this.http.delete<{ message: string; letter: LetterDTO }>(`${this.lettersUrl}/${id}`).pipe(
+      map((response) => ({
+        message: response.message,
+        letter: this.mapLetter(response.letter),
+      })),
+      tap(() => {
+        this.clearCacheAndRefresh();
+      }),
+      catchError((err) => {
+        console.error('❌ Error al eliminar carta:', err);
+        throw err;
+      }),
+    );
+  }
+
+  // ========================================================
+  // 🔄 7. Limpiar caché y notificar refresh
   // ========================================================
   clearCacheAndRefresh() {
     this.letters$ = undefined;

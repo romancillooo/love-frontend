@@ -61,14 +61,77 @@
   transform: translateY(16px);
   animation: fade-in-up 0.6s ease forwards;
   outline: none;
+  position: relative; // 🔹 Importante para posicionar acciones
 
   &:hover,
   &:focus-visible {
     transform: translateY(-4px) scale(1.01);
     box-shadow: 0 24px 46px rgba(0, 0, 0, 0.18);
     background: rgba(167, 139, 250, 0.24);
+
+    .card-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
+  // 🔹 Botones de acción (editar/eliminar)
+  .card-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+    opacity: 0; // Oculto por defecto en desktop
+    transform: translateY(-5px);
+    transition: all 0.25s ease;
+
+    // En móviles (o pantallas táctiles), mostrar siempre
+    @media (hover: none) {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    &.edit-btn {
+      color: #7c3aed; // Violeta
+      &:hover {
+        background: #fdf4ff;
+        color: #6d28d9;
+        transform: scale(1.1);
+      }
+    }
+
+    &.delete-btn {
+      color: #ef4444; // Rojo
+      &:hover {
+        background: #fef2f2;
+        color: #dc2626;
+        transform: scale(1.1);
+      }
+    }
+  }
   // 🔹 Variante para cartas creadas por usuarios (tono más claro rosado/lavanda)
   &--user {
     background: rgba(244, 214, 255, 0.35); // Rosa lavanda claro

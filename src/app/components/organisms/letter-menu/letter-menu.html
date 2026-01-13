@@ -18,6 +18,29 @@
           role="button"
           [attr.aria-label]="'Leer ' + letter.title"
         >
+          <!-- 🔹 Acciones (top corners) -->
+          <div class="card-actions">
+            <!-- Solo mostrar si tiene permisos -->
+            <button
+              *ngIf="canEdit(letter)"
+              type="button"
+              class="action-btn edit-btn"
+              (click)="onEdit(letter, $event)"
+              aria-label="Editar carta"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              *ngIf="canDelete(letter)"
+              type="button"
+              class="action-btn delete-btn"
+              (click)="onDelete(letter, $event)"
+              aria-label="Eliminar carta"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
           <div class="letter-icon">
             <span class="icon">{{ letter.icon }}</span>
           </div>
@@ -40,4 +63,23 @@
   <ng-template #loadingBlock>
     <p class="letter-loading">Cargando cartas…</p>
   </ng-template>
+
+  <!-- 🔹 Modal de Edición -->
+  <app-letter-creator
+    *ngIf="showEditModal()"
+    [editLetter]="editingLetter()"
+    (close)="closeEditModal()"
+    (update)="onUpdateLetter($event)"
+  ></app-letter-creator>
+
+  <!-- 🔹 Confirmación de Eliminación -->
+  <app-confirm-dialog
+    *ngIf="showDeleteConfirm()"
+    [visible]="true"
+    title="¿Eliminar carta?"
+    [message]="'¿Estás seguro que quieres borrar la carta \'' + (deletingLetter()?.title || '') + '\'? Esta acción no se puede deshacer.'"
+    confirmText="Sí, borrar"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteConfirm()"
+  ></app-confirm-dialog>
 </section>
