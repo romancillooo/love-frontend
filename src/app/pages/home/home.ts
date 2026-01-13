@@ -24,9 +24,12 @@ export class HomePage implements OnInit {
     private readonly router: Router,
     private readonly photoService: PhotoService,
     private readonly letterService: LetterService,
-  ) {
+  ) {}
+
+  ngOnInit() {
     // 🔹 Cargar fotos recientes (4 para desktop, 3 se mostrarán en mobile)
-    this.photoService.getAllPhotos().subscribe({
+    // Forzar refresh para evitar problemas de caché después del login
+    this.photoService.getAllPhotos(true).subscribe({
       next: (photos) => {
         this.featuredPhotos = photos.slice(0, 4);
       },
@@ -34,9 +37,9 @@ export class HomePage implements OnInit {
     });
 
     // 🔹 Cargar carta destacada (siempre la más reciente)
-    this.letterService.getAllLetters().subscribe({
+    // Forzar refresh para evitar problemas de caché después del login
+    this.letterService.getAllLetters(true).subscribe({
       next: (letters) => {
-        // Filtrar cartas que tienen fecha y ordenar por más reciente
         const lettersWithDate = letters.filter((letter) => letter.createdAt);
 
         if (lettersWithDate.length > 0) {
@@ -56,10 +59,6 @@ export class HomePage implements OnInit {
       },
       error: (err) => console.error('Error loading letters', err),
     });
-  }
-
-  ngOnInit() {
-    // Ya no es necesario lógica de scroll manual
   }
 
   // ---------- Navegación ----------

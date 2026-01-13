@@ -26,6 +26,14 @@ interface LetterDTO {
   content: string;
   createdAt?: string;
   legacyId?: number;
+  // ✅ Nuevo campo populado desde el backend
+  createdBy?: {
+    _id: string;
+    username: string;
+    displayName: string;
+    email: string;
+    role?: string;
+  };
 }
 
 /* ---------- Servicio principal ---------- */
@@ -137,6 +145,7 @@ export class LetterService {
       content: dto.content,
       createdAt: dto.createdAt,
       legacyId: dto.legacyId,
+      createdBy: dto.createdBy,
     };
   }
 }

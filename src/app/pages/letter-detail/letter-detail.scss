@@ -22,6 +22,25 @@
   flex-direction: column;
   gap: 2rem;
   color: #5b3434;
+
+  // 🔹 Variante para cartas creadas por usuarios (tono más claro rosado/lavanda)
+  &--user {
+    background: rgba(244, 214, 255, 0.35); // Rosa lavanda claro
+    border: 1px solid rgba(255, 182, 255, 0.35);
+
+    .title {
+      color: #a855f7; // Violeta más claro
+      text-shadow: 0 16px 28px rgba(168, 85, 247, 0.35);
+    }
+
+    .letter-text {
+      border-left-color: #c084fc; // Lavanda
+    }
+
+    .letter-icon {
+      background: rgba(255, 230, 250, 0.5);
+    }
+  }
 }
 
 .letter-header {

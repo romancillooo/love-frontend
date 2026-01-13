@@ -25,6 +25,7 @@ export class LetterDetail implements OnInit, OnDestroy {
   displayText = '';
   isLoading = true;
   loadError = '';
+  isUserLetter = false; // 🔹 Para aplicar estilo diferente a cartas de usuarios
 
   private typingIndex = 0;
   private lastTimestamp = 0;
@@ -63,6 +64,7 @@ export class LetterDetail implements OnInit, OnDestroy {
         this.isLoading = false;
         this.letter = letter;
         if (letter) {
+          this.checkUserLetter();
           this.startTypewriter();
         } else if (!this.loadError) {
           this.loadError = 'No encontré esta carta, intenta con otra.';
@@ -143,5 +145,28 @@ export class LetterDetail implements OnInit, OnDestroy {
 
   goBack() {
     this.router.navigate(['/letters']);
+  }
+
+  /** 🔹 Detecta si la carta fue creada por un usuario regular */
+  private checkUserLetter() {
+    if (!this.letter) return;
+    
+    const role = this.letter.createdBy?.role;
+    const username = this.letter.createdBy?.username;
+    
+    // Si tiene rol definido, usarlo
+    if (role === 'user') {
+      this.isUserLetter = true;
+      return;
+    }
+    
+    // Fallback: detectar por username (temporal)
+    const superadminUsernames = ['romancillooo', 'bebitos'];
+    this.isUserLetter = !!(username && !superadminUsernames.includes(username));
+  }
+
+  /** 🔹 Devuelve las clases CSS para el contenedor */
+  getContainerClass(): string {
+    return this.isUserLetter ? 'letter-container letter-container--user' : 'letter-container';
   }
 }

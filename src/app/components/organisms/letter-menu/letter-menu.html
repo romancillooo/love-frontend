@@ -11,7 +11,7 @@
       <div class="letter-grid" *ngIf="letters.length > 0; else emptyBlock">
         @for (letter of letters; track letter.id) {
         <article
-          class="letter-card"
+          [class]="getLetterCardClass(letter)"
           (click)="openLetter(letter.id)"
           tabindex="0"
           (keyup.enter)="openLetter(letter.id)"

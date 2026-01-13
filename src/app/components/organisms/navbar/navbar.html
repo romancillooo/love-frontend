@@ -88,8 +88,8 @@
         </div>
       </div>
 
-      <!-- 🔹 Botón "+" para crear carta en /letters (solo superadmin) -->
-      <div *ngIf="isLettersRoute && isSuperAdmin()" class="upload-menu-container" [class.hide-when-menu-open]="menuOpen()">
+      <!-- 🔹 Botón "+" para crear carta en /letters (superadmin y user) -->
+      <div *ngIf="isLettersRoute && canCreateLetters()" class="upload-menu-container" [class.hide-when-menu-open]="menuOpen()">
         <button
           class="upload-btn icon-btn"
           type="button"

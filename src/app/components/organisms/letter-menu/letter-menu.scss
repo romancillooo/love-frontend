@@ -68,6 +68,33 @@
     box-shadow: 0 24px 46px rgba(0, 0, 0, 0.18);
     background: rgba(167, 139, 250, 0.24);
   }
+
+  // 🔹 Variante para cartas creadas por usuarios (tono más claro rosado/lavanda)
+  &--user {
+    background: rgba(244, 214, 255, 0.35); // Rosa lavanda claro
+    border: 1px solid rgba(255, 182, 255, 0.35);
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(244, 214, 255, 0.45);
+    }
+
+    .letter-title {
+      color: #a855f7; // Violeta más claro
+    }
+
+    .letter-preview {
+      color: #7e22ce; // Púrpura medio
+    }
+
+    .letter-cta {
+      color: #c084fc; // Lavanda
+    }
+
+    .letter-icon {
+      background: rgba(255, 230, 250, 0.5);
+    }
+  }
 }
 
 .letter-icon {

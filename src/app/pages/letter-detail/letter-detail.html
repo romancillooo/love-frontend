@@ -9,7 +9,7 @@
     <button type="button" class="btn secondary" (click)="goBack()">Volver a las cartas</button>
   </div>
   } @else if (letter) {
-  <article class="letter-container">
+  <article [class]="getContainerClass()">
     <header class="letter-header">
       <span class="letter-icon">{{ letter.icon }}</span>
       <div class="letter-heading">
@@ -21,7 +21,7 @@
     <p class="letter-text" [innerText]="displayText"></p>
 
     <footer class="letter-footer">
-      <p>Con amor infinito, tu bebito.</p>
+      <p>Con amor infinito, {{ letter.createdBy?.displayName || letter.createdBy?.username || 'tu amor' }}.</p>
     </footer>
   </article>
   }

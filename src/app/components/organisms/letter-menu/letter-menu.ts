@@ -41,6 +41,27 @@ export class LettersMenu implements OnInit, OnDestroy {
     this.router.navigate(['/letter', id]);
   }
 
+  /** 🔹 Devuelve la clase CSS según el rol del creador */
+  getLetterCardClass(letter: Letter): string {
+    const role = letter.createdBy?.role;
+    const username = letter.createdBy?.username;
+    
+    // Si tiene rol definido, usarlo
+    if (role === 'user') {
+      return 'letter-card letter-card--user';
+    }
+    
+    // 🔹 Fallback: detectar por username (temporal hasta que el backend envíe role)
+    // Usernames de superadmins (ajusta según tus usuarios)
+    const superadminUsernames = ['romancillooo', 'bebitos'];
+    
+    if (username && !superadminUsernames.includes(username)) {
+      return 'letter-card letter-card--user';
+    }
+    
+    return 'letter-card'; // superadmin o sin rol definido
+  }
+
   private resolveError(error: unknown): string {
     if (error instanceof Error) {
       return error.message;
@@ -58,8 +79,14 @@ export class LettersMenu implements OnInit, OnDestroy {
           preview: this.letterService.getLetterPreview(letter),
         })),
       ),
-      tap(() => {
+      tap((letters) => {
         this.loadError = '';
+        // 🔍 Debug: ver qué datos de createdBy están llegando
+        console.log('📬 Cartas recibidas:', letters.map(l => ({
+          title: l.title,
+          createdBy: l.createdBy,
+          role: l.createdBy?.role
+        })));
       }),
       catchError((error) => {
         this.loadError = this.resolveError(error);

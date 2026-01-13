@@ -34,6 +34,7 @@ export class NavbarComponent {
   isPhotosRoute = false;
   isLettersRoute = false;
   isSuperAdmin = signal(false);
+  canCreateLetters = signal(false); // 🔹 Tanto superadmin como user pueden crear cartas
   isSelectionMode = signal(false);
   selectionCount = signal(0);
 
@@ -91,12 +92,16 @@ export class NavbarComponent {
   private checkUserRole() {
     const role = this.auth.getUserRole();
     const isSuperAdmin = this.auth.hasRole('superadmin');
+    const isUser = this.auth.hasRole('user');
     
     // 🔹 Debug: ver qué rol tiene el usuario
     console.log('🔍 Rol del usuario:', role);
     console.log('🔍 ¿Es superadmin?', isSuperAdmin);
+    console.log('🔍 ¿Es user?', isUser);
     
     this.isSuperAdmin.set(isSuperAdmin);
+    // 🔹 Tanto superadmin como user pueden crear cartas
+    this.canCreateLetters.set(isSuperAdmin || isUser);
   }
 
   @HostListener('window:scroll', [])
