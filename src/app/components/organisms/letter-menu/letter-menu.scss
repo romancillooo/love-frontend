@@ -210,13 +210,32 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: #4c1d95; /* Violeta oscuro */
-  display: -webkit-box;
+  white-space: pre-line;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+}
+
+.card-reactions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+  width: auto;
+  margin: 0;
+  
+  // En desktop, si los botones de acción también están arriba a la derecha, 
+  // movemos las reacciones un poco a la izquierda o cambiamos su posición.
+  // Como actualmente los actions están también top:12 right:12 en desktop, 
+  // necesitamos separarlos.
+  @media (min-width: 601px) {
+    right: 50px; // Dejar espacio para los botones de acción en desktop
+  }
 }
 
 .letter-cta {

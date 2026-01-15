@@ -13,11 +13,20 @@ import { LoveLoaderService } from '../../../core/services/love-loader.service';
 
 import { LetterCreatorComponent } from '../letter-creator/letter-creator';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog';
+import { ReactionBadgeComponent } from '../../molecules/reaction-badge/reaction-badge';
+import { ReactionsDrawerComponent } from '../../molecules/reactions-drawer/reactions-drawer';
 
 @Component({
   selector: 'app-letters-menu',
   standalone: true,
-  imports: [CommonModule, MatIconModule, LetterCreatorComponent, ConfirmDialogComponent],
+  imports: [
+    CommonModule, 
+    MatIconModule, 
+    LetterCreatorComponent, 
+    ConfirmDialogComponent,
+    ReactionBadgeComponent,
+    ReactionsDrawerComponent
+  ],
   templateUrl: './letter-menu.html',
   styleUrls: ['./letter-menu.scss'],
 })
@@ -28,6 +37,10 @@ export class LettersMenu implements OnInit, OnDestroy {
   // 🔹 Estado para edición/eliminación
   editingLetter = signal<Letter | undefined>(undefined);
   deletingLetter = signal<Letter | undefined>(undefined);
+  
+  // 🔹 Estado para reacciones
+  viewingReactionsLetter = signal<Letter | undefined>(undefined);
+
   showEditModal = signal(false);
   showDeleteConfirm = signal(false);
 
@@ -135,6 +148,17 @@ export class LettersMenu implements OnInit, OnDestroy {
     });
   }
 
+  // ========================================================
+  // 😍 Reacciones
+  // ========================================================
+  openReactions(letter: Letter) {
+    this.viewingReactionsLetter.set(letter);
+  }
+
+  closeReactions() {
+    this.viewingReactionsLetter.set(undefined);
+  }
+
   /** 🔹 Devuelve la clase CSS según el rol del creador */
   getLetterCardClass(letter: Letter): string {
     const role = letter.createdBy?.role;
@@ -152,6 +176,10 @@ export class LettersMenu implements OnInit, OnDestroy {
     }
     
     return 'letter-card'; 
+  }
+
+  getBadgeVariant(letter: Letter): 'default' | 'user' {
+    return this.getLetterCardClass(letter).includes('--user') ? 'user' : 'default';
   }
 
   private resolveError(error: unknown): string {

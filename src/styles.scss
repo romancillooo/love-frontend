@@ -1,6 +1,117 @@
 // Angular Material theming
 @use '@angular/material' as mat;
 
+/* Importar estilos de Emoji Mart */
+@import '@ctrl/ngx-emoji-mart/picker';
+
+/* 🔹 Sobrescribir estilos de Emoji Mart para Glassmorphism */
+.emoji-mart {
+  font-family: var(--ff-display, sans-serif) !important;
+  background-color: transparent !important; /* Fondo transparente */
+  border: none !important; /* Sin bordes */
+  width: 100% !important; /* Ocupar todo el ancho */
+  height: 100% !important; /* 🔹 Ocupar toda la altura */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 🔹 Hacer que el scroll ocupe todo el espacio y sea scrolleable */
+.emoji-mart-scroll {
+  flex: 1 !important;
+  min-height: 0 !important; /* Clave para que flex permita overflow */
+  overflow-y: auto !important;
+}
+
+/* Categorías (Anclas) */
+.emoji-mart-anchor {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+.emoji-mart-anchor-selected {
+  color: #fff !important;
+  border-bottom-color: #fff !important;
+}
+.emoji-mart-anchor-bar {
+  background-color: #fff !important;
+}
+
+/* Barra de búsqueda (estilo igual que letter-creator) */
+.emoji-mart-search {
+  margin-top: 8px !important;
+  margin-bottom: 12px !important; /* 🔹 Margen inferior para separar de la lista */
+  padding: 0 16px !important;
+  position: relative; /* Para posicionar elementos si fuera necesario */
+}
+
+/* Ocultar icono de lupa */
+.emoji-mart-search-icon {
+  display: none !important;
+}
+
+.emoji-mart-search input {
+  width: 100% !important;
+  padding: 0.85rem 1rem !important;
+  border-radius: 14px !important;
+  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+  font-size: 1rem !important;
+  font-family: var(--ff-display) !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+.emoji-mart-search input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+.emoji-mart-search input:focus {
+  outline: none !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Títulos de Categorías */
+.emoji-mart-category-label span {
+  background-color: rgba(167, 139, 250, 0.85) !important; /* Lila translúcido */
+  backdrop-filter: blur(8px);
+  color: #fff !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+}
+
+/* Emojis Hover */
+.emoji-mart-emoji:hover:before {
+  background-color: rgba(255,255,255,0.2) !important;
+  border-radius: 100%;
+}
+
+/* Scrollbar */
+.emoji-mart-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.emoji-mart-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}
+
+/* Preview Footer (Ocultar si se desea simplificar, o estilizar) */
+.emoji-mart-preview {
+  border-top: 1px solid rgba(255,255,255,0.15) !important;
+  background: transparent !important;
+}
+.emoji-mart-title-label {
+  color: #fff !important;
+}
+.emoji-mart-preview-name {
+  color: #fff !important;
+}
+.emoji-mart-preview-shortnames {
+  color: rgba(255,255,255,0.6) !important;
+}
+.emoji-mart-preview-emoticons {
+  color: rgba(255,255,255,0.6) !important;
+}
+
 html {
   @include mat.theme(
     (

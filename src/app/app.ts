@@ -1,13 +1,14 @@
 // src/app/app.ts
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { EmojiSelectorModalComponent } from './components/organisms/emoji-selector-modal/emoji-selector-modal';
 import { NavbarComponent } from './components/organisms/navbar/navbar';
 import { LoveLoaderComponent } from './components/shared/love-loader/love-loader';
 import { LoveLoaderService } from './core/services/love-loader.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, LoveLoaderComponent],
+  imports: [RouterOutlet, NavbarComponent, LoveLoaderComponent, EmojiSelectorModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

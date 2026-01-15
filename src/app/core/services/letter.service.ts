@@ -34,6 +34,15 @@ interface LetterDTO {
     email: string;
     role?: string;
   };
+  reactions?: Array<{
+    emoji: string;
+    user: {
+      _id: string;
+      username: string;
+      displayName: string;
+    };
+    createdAt: string;
+  }>;
 }
 
 /* ---------- Servicio principal ---------- */
@@ -173,7 +182,28 @@ export class LetterService {
   }
 
   // ========================================================
-  // 🗺️ 6. Mapear datos desde backend
+  // ❤️ 8. Reaccionar a una carta
+  // ========================================================
+  reactToLetter(id: string, emoji: string): Observable<Letter> {
+    return this.http
+      .post<{ message: string; letter: LetterDTO }>(
+        `${this.lettersUrl}/${id}/react`,
+        { emoji }
+      )
+      .pipe(
+        map((response) => this.mapLetter(response.letter)),
+        tap(() => {
+          this.clearCacheAndRefresh();
+        }),
+        catchError((err) => {
+          console.error('❌ Error al reaccionar a carta:', err);
+          throw err;
+        })
+      );
+  }
+
+  // ========================================================
+  // 🗺️ 9. Mapear datos desde backend
   // ========================================================
   private mapLetter(dto: LetterDTO): Letter {
     return {
@@ -184,6 +214,7 @@ export class LetterService {
       createdAt: dto.createdAt,
       legacyId: dto.legacyId,
       createdBy: dto.createdBy,
+      reactions: dto.reactions,
     };
   }
 }

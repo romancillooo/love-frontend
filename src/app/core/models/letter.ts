@@ -7,6 +7,16 @@ export interface UserAuthor {
   role?: string;        // Ej: "superadmin" | "user"
 }
 
+export interface Reaction {
+  emoji: string;
+  user: {
+    _id: string;
+    username: string;
+    displayName: string;
+  };
+  createdAt: string;
+}
+
 export interface Letter {
   id: string;
   title: string;
@@ -14,6 +24,6 @@ export interface Letter {
   content: string;
   createdAt?: string;
   legacyId?: number;
-  // ✅ Nuevo campo populado desde el backend
   createdBy?: UserAuthor;
+  reactions?: Reaction[];
 }

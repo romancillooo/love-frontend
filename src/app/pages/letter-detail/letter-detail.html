@@ -21,8 +21,41 @@
     <p class="letter-text" [innerText]="displayText"></p>
 
     <footer class="letter-footer">
-      <p>Con amor infinito, {{ letter.createdBy?.displayName || letter.createdBy?.username || 'tu amor' }}.</p>
+      <div class="reactions-area">
+        <app-reaction-badge
+          [reactions]="letter.reactions || []"
+          [variant]="isUserLetter ? 'user' : 'default'"
+          (badgeClick)="toggleReactionsDrawer()"
+        ></app-reaction-badge>
+
+        <div class="reaction-trigger">
+          <button 
+            type="button" 
+            class="react-btn" 
+            (click)="toggleEmojiPicker($event)"
+            [class.active]="myReaction"
+          >
+            <span class="btn-icon">{{ myReaction || '☺' }}</span>
+            <span class="btn-label">{{ myReaction ? 'Tu reacción' : 'Reaccionar' }}</span>
+          </button>
+          
+          <app-emoji-picker
+            [visible]="showEmojiPicker"
+            [currentEmoji]="myReaction"
+            (emojiSelect)="onReact($event)"
+          ></app-emoji-picker>
+        </div>
+      </div>
+
+      <p class="author-sign">Con amor infinito, {{ letter.createdBy?.displayName || letter.createdBy?.username || 'tu amor' }}.</p>
     </footer>
   </article>
+
+  <!-- 🔹 Drawer de Reacciones -->
+  <app-reactions-drawer
+    [isOpen]="showReactionsDrawer"
+    [reactions]="letter.reactions || []"
+    (closeDrawer)="toggleReactionsDrawer()"
+  ></app-reactions-drawer>
   }
 </section>

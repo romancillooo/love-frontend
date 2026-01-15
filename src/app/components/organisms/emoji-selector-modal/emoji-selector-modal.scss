@@ -1,0 +1,142 @@
+// src/app/components/organisms/emoji-selector-modal/emoji-selector-modal.scss
+// Estilos fullscreen - Similar a una página completa
+
+/* ---------- BACKDROP FULLSCREEN ---------- */
+.emoji-selector-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* Máximo z-index para cubrir todo */
+  background: rgba(139, 92, 246, 0.22); /* 💜 Lila overlay */
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  animation: fade-in 0.25s ease forwards;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- MODAL FULLSCREEN ---------- */
+.emoji-selector-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: rgba(167, 139, 250, 0.15); /* 💜 Lila glassmorphism más sutil */
+  backdrop-filter: blur(20px) saturate(185%);
+  -webkit-backdrop-filter: blur(20px) saturate(185%);
+  animation: slide-up 0.3s ease-out;
+  overflow: hidden;
+}
+
+/* ---------- HEADER FIJO ---------- */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 1rem); /* Respetar notch */
+  color: #fff;
+  font-family: var(--ff-display);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(167, 139, 250, 0.3);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.95;
+}
+
+.modal-title {
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin: 0;
+  letter-spacing: 0.03em;
+  color: #fff;
+  font-family: var(--ff-display);
+}
+
+.close-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ---------- BODY SCROLLABLE ---------- */
+.modal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Importante para que flex funcione con overflow */
+  overflow: hidden;
+  padding: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* 🔹 Forzar emoji-mart a ocupar todo y ser scrolleable */
+  ::ng-deep {
+    emoji-mart {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .emoji-mart {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+      height: 100% !important;
+    }
+
+    .emoji-mart-scroll {
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important; /* Para scroll suave en iOS */
+    }
+  }
+}
+
+/* ---------- ANIMACIONES ---------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

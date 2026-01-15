@@ -23,6 +23,15 @@
           </div>
           <h3 class="letter-title">{{ letter.title }}</h3>
           <p class="letter-preview">{{ letter.preview }}</p>
+
+          <!-- 🔹 Reacciones -->
+          <div class="card-reactions">
+            <app-reaction-badge
+              [reactions]="letter.reactions || []"
+              [variant]="getBadgeVariant(letter)"
+              (badgeClick)="openReactions(letter)"
+            ></app-reaction-badge>
+          </div>
           
           <!-- 🔹 Footer con acciones y CTA -->
           <div class="card-footer">
@@ -86,4 +95,11 @@
     (confirm)="confirmDelete()"
     (cancel)="closeDeleteConfirm()"
   ></app-confirm-dialog>
+
+  <!-- 🔹 Drawer de Reacciones -->
+  <app-reactions-drawer
+    [isOpen]="!!viewingReactionsLetter()"
+    [reactions]="viewingReactionsLetter()?.reactions || []"
+    (closeDrawer)="closeReactions()"
+  ></app-reactions-drawer>
 </section>

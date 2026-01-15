@@ -12,11 +12,20 @@ import { Subject, of } from 'rxjs';
 import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { LetterService } from '../../core/services/letter.service';
 import { Letter } from '../../core/models/letter';
+import { AuthService } from '../../core/auth';
+import { ReactionBadgeComponent } from '../../components/molecules/reaction-badge/reaction-badge';
+import { ReactionsDrawerComponent } from '../../components/molecules/reactions-drawer/reactions-drawer';
+import { EmojiPickerComponent } from '../../components/atoms/emoji-picker/emoji-picker';
 
 @Component({
   selector: 'app-letter-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule, 
+    ReactionBadgeComponent, 
+    ReactionsDrawerComponent, 
+    EmojiPickerComponent
+  ],
   templateUrl: './letter-detail.html',
   styleUrls: ['./letter-detail.scss'],
 })
@@ -26,6 +35,11 @@ export class LetterDetail implements OnInit, OnDestroy {
   isLoading = true;
   loadError = '';
   isUserLetter = false; // 🔹 Para aplicar estilo diferente a cartas de usuarios
+  
+  // 🔹 Estado de Reacciones
+  showReactionsDrawer = false;
+  showEmojiPicker = false;
+  currentUser: { username: string } | null = null;
 
   private typingIndex = 0;
   private lastTimestamp = 0;
@@ -38,7 +52,10 @@ export class LetterDetail implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
     private readonly letterService: LetterService,
-  ) {}
+    private readonly auth: AuthService
+  ) {
+    this.currentUser = this.auth.getUser();
+  }
 
   ngOnInit() {
     this.route.paramMap
@@ -165,8 +182,44 @@ export class LetterDetail implements OnInit, OnDestroy {
     this.isUserLetter = !!(username && !superadminUsernames.includes(username));
   }
 
-  /** 🔹 Devuelve las clases CSS para el contenedor */
   getContainerClass(): string {
     return this.isUserLetter ? 'letter-container letter-container--user' : 'letter-container';
+  }
+
+  // ========================================================
+  // 😍 Reacciones Logic
+  // ========================================================
+  
+  toggleReactionsDrawer() {
+    this.showReactionsDrawer = !this.showReactionsDrawer;
+  }
+
+  toggleEmojiPicker(event?: Event) {
+    if (event) event.stopPropagation();
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  get myReaction(): string | undefined {
+    if (!this.letter || !this.letter.reactions || !this.currentUser) return undefined;
+    const reaction = this.letter.reactions.find(r => r.user.username === this.currentUser?.username);
+    return reaction?.emoji;
+  }
+
+  onReact(emoji: string) {
+    if (!this.letter) return;
+    
+    // Optimistic Update (opcional/visual)
+    this.showEmojiPicker = false;
+
+    this.letterService.reactToLetter(this.letter.id, emoji).subscribe({
+      next: (updatedLetter) => {
+        this.letter = updatedLetter;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error reacting', err);
+        // Revertir si fuera necesario
+      }
+    });
   }
 }
