@@ -20,6 +20,8 @@
   flex-direction: column;
   gap: 1.25rem;
   width: clamp(320px, 90vw, 520px);
+  max-height: 85vh; /* 🔹 Limitar altura para que no se desborde */
+  overflow-y: auto; /* 🔹 Scroll interno cuando hay muchas fotos */
   background: rgba(167, 139, 250, 0.18); /* 💜 Lila glassmorphism */
   backdrop-filter: blur(18px) saturate(185%);
   -webkit-backdrop-filter: blur(18px) saturate(185%);
@@ -28,6 +30,15 @@
   padding: 1.5rem;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
   animation: zoom-in 0.28s ease-out;
+
+  /* 🔹 Scrollbar sutil */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
 }
 
 /* ---------- TOOLBAR ---------- */
