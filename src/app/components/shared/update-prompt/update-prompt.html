@@ -1,0 +1,26 @@
+<!-- src/app/components/shared/update-prompt/update-prompt.html -->
+@if (visible) {
+<div class="update-overlay" (click)="dismiss()">
+  <div class="update-card" (click)="$event.stopPropagation()">
+    <!-- 💜 Icono animado -->
+    <div class="update-icon">
+      <span class="sparkle">✨</span>
+      <span class="heart">💜</span>
+    </div>
+
+    <h2 class="update-title">¡Hay una nueva versión!</h2>
+    <p class="update-message">
+      Hemos preparado mejoras con mucho amor para ti. Actualiza para disfrutar lo nuevo. 💖
+    </p>
+
+    <div class="update-actions">
+      <button class="btn-update" (click)="update()">
+        Actualizar ahora ✨
+      </button>
+      <button class="btn-later" (click)="dismiss()">
+        Después
+      </button>
+    </div>
+  </div>
+</div>
+}

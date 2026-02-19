@@ -26,3 +26,10 @@
 
 <!-- 🔹 Modal global de selección de emojis -->
 <app-emoji-selector-modal></app-emoji-selector-modal>
+
+<!-- 🔄 Modal de actualización PWA -->
+<app-update-prompt
+  [visible]="showUpdatePrompt()"
+  (accepted)="onAcceptUpdate()"
+  (dismissed)="onDismissUpdate()"
+></app-update-prompt>
