@@ -1,38 +1,41 @@
 // src/app/components/shared/update-prompt/update-prompt.scss
 
-.update-overlay {
+/* ---------- BACKDROP (igual que album-creator) ---------- */
+.update-backdrop {
   position: fixed;
   inset: 0;
   z-index: 9999; // Por encima de absolutamente todo
-  background: rgba(139, 92, 246, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(139, 92, 246, 0.22); /* 💜 Lila overlay */
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  animation: fade-in 0.25s ease forwards;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-  animation: fadeIn 0.3s ease-out;
+  align-items: center;
+  padding: 1.25rem;
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
 }
 
-.update-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(167, 139, 250, 0.3);
+/* ---------- MODAL (igual que album-creator) ---------- */
+.update-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: clamp(320px, 90vw, 420px);
+  background: rgba(167, 139, 250, 0.18); /* 💜 Lila glassmorphism */
+  backdrop-filter: blur(18px) saturate(185%);
+  -webkit-backdrop-filter: blur(18px) saturate(185%);
   border-radius: 24px;
-  padding: 2.5rem 2rem;
-  max-width: 380px;
-  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 2rem 1.5rem;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  animation: zoom-in 0.28s ease-out;
   text-align: center;
-  box-shadow: 
-    0 20px 60px rgba(139, 92, 246, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* ---------- ICONO ---------- */
 .update-icon {
   font-size: 3rem;
-  margin-bottom: 1rem;
   position: relative;
   display: inline-block;
 
@@ -50,31 +53,35 @@
   }
 }
 
+/* ---------- TEXTOS ---------- */
 .update-title {
   font-family: var(--ff-display);
   font-size: 1.4rem;
-  font-weight: 800;
-  color: #5b21b6;
-  margin: 0 0 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.03em;
 }
 
 .update-message {
   font-family: var(--ff-display);
   font-size: 0.95rem;
-  color: #6b5b7b;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
-  margin: 0 0 1.75rem;
+  margin: 0;
 }
 
+/* ---------- ACCIONES (igual que album-creator) ---------- */
 .update-actions {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .btn-update {
   width: 100%;
-  padding: 0.95rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   border: none;
   border-radius: 999px;
   font-family: var(--ff-display);
@@ -84,12 +91,15 @@
   color: #fff;
   background: linear-gradient(135deg, var(--violet-500), var(--lilac-400));
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.45);
+    box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
   }
 
   &:active {
@@ -99,36 +109,36 @@
 
 .btn-later {
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.4rem;
   border: none;
   border-radius: 999px;
   font-family: var(--ff-display);
   font-size: 0.9rem;
   font-weight: 600;
-  color: #8b8b9e;
-  background: transparent;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.25s ease;
 
   &:hover {
-    color: #5b21b6;
+    background: rgba(255, 255, 255, 0.3);
   }
 }
 
-// Animations
-@keyframes fadeIn {
+/* ---------- ANIMACIONES (igual que album-creator) ---------- */
+@keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes slideUp {
+@keyframes zoom-in {
   from {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 

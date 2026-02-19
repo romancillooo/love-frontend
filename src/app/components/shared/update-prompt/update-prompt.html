@@ -1,7 +1,7 @@
 <!-- src/app/components/shared/update-prompt/update-prompt.html -->
 @if (visible) {
-<div class="update-overlay" (click)="dismiss()">
-  <div class="update-card" (click)="$event.stopPropagation()">
+<div class="update-backdrop" (click)="dismiss()">
+  <div class="update-modal" (click)="$event.stopPropagation()">
     <!-- 💜 Icono animado -->
     <div class="update-icon">
       <span class="sparkle">✨</span>
