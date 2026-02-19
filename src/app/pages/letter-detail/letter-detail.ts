@@ -13,9 +13,12 @@ import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { LetterService } from '../../core/services/letter.service';
 import { Letter } from '../../core/models/letter';
 import { AuthService } from '../../core/auth';
+import { LetterChatService } from '../../core/services/letter-chat.service';
+import { SocketService } from '../../core/services/socket.service';
 import { ReactionBadgeComponent } from '../../components/molecules/reaction-badge/reaction-badge';
 import { ReactionsDrawerComponent } from '../../components/molecules/reactions-drawer/reactions-drawer';
 import { EmojiPickerComponent } from '../../components/atoms/emoji-picker/emoji-picker';
+import { CommentsDrawerComponent } from '../../components/molecules/comments-drawer/comments-drawer';
 
 @Component({
   selector: 'app-letter-detail',
@@ -24,7 +27,9 @@ import { EmojiPickerComponent } from '../../components/atoms/emoji-picker/emoji-
     CommonModule, 
     ReactionBadgeComponent, 
     ReactionsDrawerComponent, 
-    EmojiPickerComponent
+ 
+    EmojiPickerComponent,
+    CommentsDrawerComponent
   ],
   templateUrl: './letter-detail.html',
   styleUrls: ['./letter-detail.scss'],
@@ -38,8 +43,11 @@ export class LetterDetail implements OnInit, OnDestroy {
   
   // 🔹 Estado de Reacciones
   showReactionsDrawer = false;
+  showCommentsDrawer = false;
+  isSendingComment = false;
   showEmojiPicker = false;
   currentUser: { username: string } | null = null;
+  typingUsers: string[] = []; // Nombres de usuarios escribiendo
 
   private typingIndex = 0;
   private lastTimestamp = 0;
@@ -52,7 +60,9 @@ export class LetterDetail implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
     private readonly letterService: LetterService,
-    private readonly auth: AuthService
+    private readonly auth: AuthService,
+    private readonly letterChatService: LetterChatService,
+    private readonly socketService: SocketService
   ) {
     this.currentUser = this.auth.getUser();
   }
@@ -83,16 +93,92 @@ export class LetterDetail implements OnInit, OnDestroy {
         if (letter) {
           this.checkUserLetter();
           this.startTypewriter();
+          // Registrar carta en el servicio para que navbar la vea
+          this.letterChatService.setCurrentLetter(letter);
+
+          // 🔌 Conectarse al room de socket
+          this.setupSocket(letter.id);
+
         } else if (!this.loadError) {
           this.loadError = 'No encontré esta carta, intenta con otra.';
         }
       });
+
+    // Registrar callbacks para que navbar pueda controlar el chat
+    this.letterChatService.registerCallbacks(
+      () => this.toggleCommentsDrawer(),
+      (content) => this.onSendComment({ content })
+    );
   }
 
   ngOnDestroy() {
     this.cancelAnimation();
     this.destroy$.next();
     this.destroy$.complete();
+    
+    // 🔌 Desconectar socket de la carta
+    if (this.letter) {
+      this.socketService.leaveLetterRoom(this.letter.id);
+    }
+    
+    // Limpiar carta del servicio al salir
+    this.letterChatService.setCurrentLetter(null);
+    this.letterChatService.clearCallbacks();
+  }
+
+  // ---------- Socket Setup ----------
+  private setupSocket(letterId: string) {
+    this.socketService.connect();
+    this.socketService.joinLetterRoom(letterId);
+
+    // Escuchar nuevos comentarios
+    this.socketService.onNewComment()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data.letterId === this.letter?.id && this.letter) {
+          // Si el comentario es mío, quizas ya lo tengo por el optimistic UI (o la respuesta del POST)
+          // Pero por simplicidad, lo agregamos si no existe (por ID)
+          const exists = this.letter.comments?.some(c => c._id === data.comment._id);
+          if (!exists) {
+            this.letter.comments = [...(this.letter.comments || []), data.comment];
+            this.letterChatService.updateLetter(this.letter);
+            this.cdr.markForCheck();
+          }
+        }
+      });
+
+    // Escuchar actualizaciones de reacciones
+    this.socketService.onReactionUpdate()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data.letterId === this.letter?.id && this.letter) {
+          this.letter.reactions = data.reactions;
+          this.cdr.markForCheck();
+        }
+      });
+      
+    // Escuchar typing
+    this.socketService.onUserTyping()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data.letterId === this.letter?.id && data.user.username !== this.currentUser?.username) {
+          if (!this.typingUsers.includes(data.user.displayName)) {
+            this.typingUsers = [...this.typingUsers, data.user.displayName];
+            this.cdr.markForCheck();
+          }
+        }
+      });
+      
+    this.socketService.onUserStopTyping()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data.letterId === this.letter?.id) {
+          // Use 'any' cast or check property existence if needed
+          const displayName = (data.user as any).displayName || data.user.username;
+          this.typingUsers = this.typingUsers.filter(u => u !== data.user.username && u !== displayName);
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   // ---------- Animación de escritura ----------
@@ -221,5 +307,45 @@ export class LetterDetail implements OnInit, OnDestroy {
         // Revertir si fuera necesario
       }
     });
+  }
+
+
+
+  // ========================================================
+  // 💬 Comentarios Logic
+  // ========================================================
+  toggleCommentsDrawer() {
+    this.showCommentsDrawer = !this.showCommentsDrawer;
+  }
+
+  onSendComment(event: { content: string, replyToId?: string }) {
+    if (!this.letter) return;
+    
+    // Stop typing inmediatamente al enviar
+    this.handleUserTyping(false);
+    
+    this.isSendingComment = true;
+    this.letterService.commentOnLetter(this.letter.id, event.content, event.replyToId).subscribe({
+      next: (updatedLetter) => {
+        this.letter = updatedLetter;
+        this.isSendingComment = false;
+        this.letterChatService.updateLetter(updatedLetter); // Actualizar servicio
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error sending comment', err);
+        this.isSendingComment = false;
+        // Mostrar toast error
+      }
+    });
+  }
+  
+  handleUserTyping(isTyping: boolean) {
+    if (!this.letter) return;
+    if (isTyping) {
+      this.socketService.emitTyping(this.letter.id);
+    } else {
+      this.socketService.emitStopTyping(this.letter.id);
+    }
   }
 }

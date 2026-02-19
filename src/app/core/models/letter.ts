@@ -26,4 +26,21 @@ export interface Letter {
   legacyId?: number;
   createdBy?: UserAuthor;
   reactions?: Reaction[];
+  comments?: LetterComment[];
+}
+
+export interface LetterComment {
+  _id: string;
+  user: {
+    _id: string;
+    username: string;
+    displayName: string;
+  };
+  content: string;
+  createdAt: string;
+  replyTo?: {
+    _id: string;
+    user: { displayName: string };
+    content: string;
+  };
 }

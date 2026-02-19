@@ -57,5 +57,16 @@
     [reactions]="letter.reactions || []"
     (closeDrawer)="toggleReactionsDrawer()"
   ></app-reactions-drawer>
+
+  <!-- 🔹 Drawer de Comentarios -->
+  <app-comments-drawer
+    [isOpen]="showCommentsDrawer"
+    [comments]="letter.comments || []"
+    [isSending]="isSendingComment"
+    [typingUsers]="typingUsers"
+    (closeDrawer)="toggleCommentsDrawer()"
+    (sendComment)="onSendComment($event)"
+    (userTyping)="handleUserTyping($event)"
+  ></app-comments-drawer>
   }
 </section>

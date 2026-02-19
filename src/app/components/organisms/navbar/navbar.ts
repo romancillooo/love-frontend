@@ -9,6 +9,7 @@ import { PhotoService } from '../../../core/services/photo.service';
 import { AlbumService } from '../../../core/services/album.service';
 import { LetterService } from '../../../core/services/letter.service';
 import { LoveLoaderService } from '../../../core/services/love-loader.service';
+import { LetterChatService } from '../../../core/services/letter-chat.service';
 import { ImageUploaderComponent } from '../image-uploader/image-uploader';
 import { AlbumCreatorComponent } from '../album-creator/album-creator';
 import { LetterCreatorComponent } from '../letter-creator/letter-creator';
@@ -33,6 +34,7 @@ export class NavbarComponent {
   showLetterCreator = signal(false); // 🔹 Mostrar modal de crear carta
   isPhotosRoute = false;
   isLettersRoute = false;
+  isLetterDetailRoute = false;
   isSuperAdmin = signal(false);
   canCreateLetters = signal(false); // 🔹 Tanto superadmin como user pueden crear cartas
   isSelectionMode = signal(false);
@@ -55,6 +57,7 @@ export class NavbarComponent {
     private readonly photoService: PhotoService,
     private readonly letterService: LetterService,
     private readonly loaderService: LoveLoaderService,
+    readonly letterChatService: LetterChatService,
   ) {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -268,6 +271,7 @@ export class NavbarComponent {
     this.showBackButton = this.shouldShowBack(url);
     this.isPhotosRoute = url === '/photos';
     this.isLettersRoute = url === '/letters';
+    this.isLetterDetailRoute = url.startsWith('/letter/');
     
     // Re-verificar el rol cuando cambia la ruta (por si el token cambió)
     if (url === '/letters') {

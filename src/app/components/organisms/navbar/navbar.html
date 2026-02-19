@@ -99,6 +99,21 @@
           <mat-icon>add</mat-icon>
         </button>
       </div>
+
+      <!-- Chat button for letter detail -->
+      <div *ngIf="isLetterDetailRoute && letterChatService.currentLetter()" class="upload-menu-container" [class.hide-when-menu-open]="menuOpen()">
+        <button
+          class="chat-btn icon-btn"
+          type="button"
+          (click)="letterChatService.toggleChat()"
+          aria-label="Abrir chat de la carta"
+        >
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <span class="chat-badge" *ngIf="letterChatService.unreadCount() > 0">
+            {{ letterChatService.unreadCount() }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <!-- 🔹 Enlaces -->

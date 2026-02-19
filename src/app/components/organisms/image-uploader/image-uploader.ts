@@ -30,7 +30,7 @@ export class ImageUploaderComponent implements OnDestroy {
   isUploading = false;
   isLoaderVisible = false;
   loaderMessage: string = '💌 Subiendo tus recuerdos...';
-  readonly MAX_FILES = 10;
+  readonly MAX_FILES = 20;
   isProcessingFiles = false;
 
   activeIndex: number | null = null;

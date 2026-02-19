@@ -94,6 +94,10 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
 
+    // 🛡️ Guardián de scroll: asegurar que el body NO tenga scroll bloqueado
+    // al entrar a la galería (previene bugs si un modal/menú no limpió su estado)
+    this.ensureBodyScrollable();
+
     // 🔁 Refrescar galería cuando PhotoService emita refresh$
     this.photoService.refresh$
       .pipe(
@@ -1103,6 +1107,25 @@ export class PhotoGalleryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.photoPendingDeletion = null;
     this.isRemoveFromAlbumLoading = false;
     this.cdr.detectChanges();
+  }
+
+  // ========================================================
+  // 🛡️ Guardián de scroll
+  // ========================================================
+  /**
+   * Asegura que el body sea scrollable al entrar a la galería.
+   * Previene el escenario donde un modal, menú u overlay dejó
+   * la clase `menu-open` activa, causando overflow: hidden en body.
+   */
+  private ensureBodyScrollable() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    // Remover cualquier clase que bloquee scroll
+    document.body.classList.remove('menu-open');
+    
+    // Forzar que el body permita scroll
+    document.body.style.overflow = '';
+    document.body.style.height = '';
   }
 
 }

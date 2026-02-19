@@ -48,3 +48,15 @@ export function buildApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${base}${cleanPath}`;
 }
+
+
+export function resolveBaseUrl(): string {
+  const apiUrl = resolveApiUrl();
+  // Remove trailing slash if present
+  const cleanUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+  // Remove '/api' suffix if present
+  if (cleanUrl.endsWith('/api')) {
+    return cleanUrl.slice(0, -4);
+  }
+  return cleanUrl;
+}

@@ -43,6 +43,16 @@ interface LetterDTO {
     };
     createdAt: string;
   }>;
+  comments?: Array<{
+    _id: string;
+    user: {
+      _id: string;
+      username: string;
+      displayName: string;
+    };
+    content: string;
+    createdAt: string;
+  }>;
 }
 
 /* ---------- Servicio principal ---------- */
@@ -203,6 +213,27 @@ export class LetterService {
   }
 
   // ========================================================
+  // 💬 9. Comentar una carta
+  // ========================================================
+  commentOnLetter(id: string, content: string, replyToId?: string): Observable<Letter> {
+    return this.http
+      .post<{ message: string; letter: LetterDTO }>(
+        `${this.lettersUrl}/${id}/comments`,
+        { content, replyToId }
+      )
+      .pipe(
+        map((response) => this.mapLetter(response.letter)),
+        tap(() => {
+          this.clearCacheAndRefresh();
+        }),
+        catchError((err) => {
+          console.error('❌ Error al comentar carta:', err);
+          throw err;
+        })
+      );
+  }
+
+  // ========================================================
   // 🗺️ 9. Mapear datos desde backend
   // ========================================================
   private mapLetter(dto: LetterDTO): Letter {
@@ -215,6 +246,7 @@ export class LetterService {
       legacyId: dto.legacyId,
       createdBy: dto.createdBy,
       reactions: dto.reactions,
+      comments: dto.comments,
     };
   }
 }
